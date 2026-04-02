@@ -1,6 +1,6 @@
 # rag-core-engine project
 ## Northeastern University
-### CS5008 - Final Project
+### CS5004 - Final Project
 #### Team Member
 |Name|
 |-|
