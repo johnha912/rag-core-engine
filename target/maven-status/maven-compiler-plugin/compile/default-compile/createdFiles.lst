@@ -1,0 +1,5 @@
+com\ragcore\service\EmbeddingService.class
+com\ragcore\adapter\DocumentAdapter.class
+com\ragcore\RagCoreApplication.class
+com\ragcore\service\VectorStore.class
+com\ragcore\model\Chunk.class
