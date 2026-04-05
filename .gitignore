@@ -1,3 +1,7 @@
+# Maven build output — never commit compiled files
+# Maven 编译输出 —— 不提交编译产物
+target/
+
 # Compiled class file
 *.class
 
