@@ -1,9 +1,12 @@
 package com.ragcore.adapter;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Utility class that cleans raw text extracted from PDF or other documents. Removes noise such as
  * headers, footers, extra whitespace, and special characters that would degrade embedding quality.
  */
+@Component
 public class TextCleaner {
 
   /**

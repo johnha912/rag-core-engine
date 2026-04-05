@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
  * Implements {@link DocumentAdapter} for PDF files. Uses Apache PDFBox to extract text,
  * then cleans and splits it into chunks. Also supports plain TXT files as a fallback.
  */
+@Component
 public class BasePdfAdapter implements DocumentAdapter {
 
   private final TextCleaner cleaner;

@@ -2,16 +2,23 @@ package com.ragcore.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 /**
  * Splits long text into smaller chunks with configurable size and overlap. This enables the RAG
  * system to process text within token limits while preserving context at chunk boundaries through
  * overlapping.
  */
+@Component
 public class TextSplitter {
 
   private final int chunkSize;
   private final int overlap;
+
+  public TextSplitter() {
+    this.chunkSize = 1000;
+    this.overlap = 200;
+  }
 
   /**
    * Constructs a TextSplitter with the specified chunk size and overlap.
