@@ -53,7 +53,11 @@ public class ChatService {
     }
     this.apiKey = apiKey;
     this.model = (model == null || model.isBlank()) ? DEFAULT_MODEL : model;
-    this.httpClient = new OkHttpClient();
+    this.httpClient = new OkHttpClient.Builder()
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .build();
     this.gson = new Gson();
   }
 
