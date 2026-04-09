@@ -121,4 +121,14 @@ public class RagOrchestrator {
   public int getChunkCount() {
     return chunkCount.get();
   }
+
+  /**
+   * Clears all stored chunks and resets the chunk count.
+   * Use before uploading a new set of documents to avoid cross-domain confusion.
+   */
+  public void reset() {
+    ((InMemoryVectorStore) vectorStore).clear();
+    chunkCount.set(0);
+  }
 }
+

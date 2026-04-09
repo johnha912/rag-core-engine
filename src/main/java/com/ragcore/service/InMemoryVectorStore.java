@@ -116,6 +116,13 @@ public class InMemoryVectorStore implements VectorStore {
   }
 
   /**
+   * Clears all stored chunks from the vector store.
+   */
+  public void clear() {
+    store.clear();
+  }
+
+  /**
    * Returns the number of chunks currently held in the store.
    *
    * @return chunk count

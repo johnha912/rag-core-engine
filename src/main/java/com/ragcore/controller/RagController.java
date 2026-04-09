@@ -60,4 +60,11 @@ public class RagController {
         + " | Chunks stored: " + orchestrator.getChunkCount();
     return ResponseEntity.ok(status);
   }
+
+  // ─── DELETE /api/reset ──────────────────────────────────────────
+  @DeleteMapping("/reset")
+  public ResponseEntity<String> reset() {
+    orchestrator.reset();
+    return ResponseEntity.ok("Vector store cleared. Ready for new documents.");
+  }
 }
