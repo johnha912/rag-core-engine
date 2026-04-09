@@ -53,4 +53,5 @@ public interface VectorStore {
    * @throws IllegalArgumentException if query is null/empty or topK is not positive
    */
   List<Chunk> search(String query, int topK);
+  void clear();
 }

@@ -49,6 +49,8 @@ public class RagOrchestrator {
    * @throws Exception if parsing or storing fails
    */
   public void index(MultipartFile file, String domain) throws Exception {
+    vectorStore.clear();
+    chunkCount.set(0);
     indexing.set(true);
     try {
       String fileName = file.getOriginalFilename();
@@ -127,7 +129,7 @@ public class RagOrchestrator {
    * Use before uploading a new set of documents to avoid cross-domain confusion.
    */
   public void reset() {
-    ((InMemoryVectorStore) vectorStore).clear();
+    vectorStore.clear();
     chunkCount.set(0);
   }
 }

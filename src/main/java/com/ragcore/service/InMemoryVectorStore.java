@@ -118,6 +118,7 @@ public class InMemoryVectorStore implements VectorStore {
   /**
    * Clears all stored chunks from the vector store.
    */
+  @Override
   public void clear() {
     store.clear();
   }
