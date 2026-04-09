@@ -48,16 +48,28 @@ public class RagOrchestrator {
    * @throws IllegalArgumentException if no adapter supports the file type
    * @throws Exception if parsing or storing fails
    */
-  public void index(MultipartFile file) throws Exception {
+  public void index(MultipartFile file, String domain) throws Exception {
     indexing.set(true);
     try {
       String fileName = file.getOriginalFilename();
 
-      DocumentAdapter adapter = adapters.stream()
-          .filter(a -> a.supports(fileName))
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException(
-              "No adapter found for file: " + fileName));
+      DocumentAdapter adapter;
+
+      if (domain == null || domain.isBlank() || domain.equals("general")) {
+        // general 模式：用原来的 supports() 自动选择
+        adapter = adapters.stream()
+            .filter(a -> a.supports(fileName))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                "No adapter found for file: " + fileName));
+      } else {
+        // 指定 domain：按 getDomainName() 精准匹配
+        adapter = adapters.stream()
+            .filter(a -> a.getDomainName().equalsIgnoreCase(domain.replace("_", " ")))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                "No adapter found for domain: " + domain));
+      }
 
       List<Chunk> chunks = adapter.parse(file.getInputStream(), fileName);
       vectorStore.store(chunks);
@@ -79,7 +91,7 @@ public class RagOrchestrator {
    * @return the AI-generated answer with source citations, or a fallback message
    */
   public String query(String question) {
-    List<Chunk> relevant = vectorStore.search(question, 5);
+    List<Chunk> relevant = vectorStore.search(question, 10);
 
     if (relevant.isEmpty()) {
       return "No relevant content found in the indexed documents. "

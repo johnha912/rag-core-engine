@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class ChatService {
 
   private static final String OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
-  private static final String DEFAULT_MODEL = "gpt-3.5-turbo";
+  private static final String DEFAULT_MODEL = "gpt-4o-mini";
   private static final MediaType JSON_MEDIA = MediaType.get("application/json; charset=utf-8");
 
   private final String apiKey;
@@ -89,10 +89,18 @@ public class ChatService {
       contextBuilder.append(c.getContent()).append("\n\n");
     }
 
-    String systemPrompt = "You are a helpful assistant. Answer the user's question based ONLY "
-        + "on the following context. If the context does not contain enough information, "
-        + "say so. Always cite which source and page your answer comes from.\n\n"
-        + "Context:\n" + contextBuilder;
+    String systemPrompt = "You are an expert legal and document analysis assistant with deep knowledge "
+        + "of California tenant rights law, including California Civil Code Section 1941 "
+        + "(implied warranty of habitability), constructive eviction, quiet enjoyment rights, "
+        + "and tenant remedies. "
+        + "Answer the user's question based primarily on the provided context. "
+        + "When the context supports it, enrich your answer with relevant legal concepts "
+        + "such as 'constructive eviction', 'implied warranty of habitability', "
+        + "'California Civil Code Section 1941', or other applicable laws. "
+        + "If the context does not contain enough information, say so clearly. "
+        + "Always cite which source and page your answer comes from. "
+        + "Structure your answer clearly with numbered steps when giving advice.\n\n"
+        + "Context:\n" + contextBuilder;;
 
     // Build JSON request body
     JsonObject requestBody = new JsonObject();

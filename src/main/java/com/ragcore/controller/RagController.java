@@ -23,17 +23,23 @@ public class RagController {
 
   // ─── POST /api/upload ───────────────────────────────────────────
   @PostMapping("/upload")
-  public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+  public ResponseEntity<String> upload(
+      @RequestParam("file") MultipartFile file,
+      @RequestParam(value = "domain", defaultValue = "general") String domain) {
+
     if (file.isEmpty()) {
       return ResponseEntity.badRequest().body("No file provided.");
     }
     try {
-      orchestrator.index(file);
-      return ResponseEntity.ok("File uploaded and indexed: " + file.getOriginalFilename());
+      orchestrator.index(file, domain);
+      return ResponseEntity.ok("File uploaded and indexed: "
+          + file.getOriginalFilename()
+          + " (domain: " + domain + ")");
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("Failed to index file: " + e.getMessage());
+      return ResponseEntity.internalServerError()
+          .body("Failed to index file: " + e.getMessage());
     }
   }
 

@@ -12,10 +12,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Unit tests for RagController.
- * Uses MockMvc to simulate HTTP requests without starting a real server.
- */
 @WebMvcTest(RagController.class)
 class RagControllerTest {
 
@@ -53,14 +49,29 @@ class RagControllerTest {
   }
 
   @Test
-  void uploadEndpoint_validFile_returnsOk() throws Exception {
+  void uploadEndpoint_validFile_defaultDomain_returnsOk() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
         "file", "test.txt", "text/plain", "hello world".getBytes()
     );
 
     mockMvc.perform(multipart("/api/upload").file(file))
         .andExpect(status().isOk())
-        .andExpect(content().string("File uploaded and indexed: test.txt"));
+        .andExpect(content().string(
+            "File uploaded and indexed: test.txt (domain: general)"));
+  }
+
+  @Test
+  void uploadEndpoint_withDomain_returnsOk() throws Exception {
+    MockMultipartFile file = new MockMultipartFile(
+        "file", "contract.pdf", "application/pdf", "legal".getBytes()
+    );
+
+    mockMvc.perform(multipart("/api/upload")
+            .file(file)
+            .param("domain", "rental_law"))
+        .andExpect(status().isOk())
+        .andExpect(content().string(
+            "File uploaded and indexed: contract.pdf (domain: rental_law)"));
   }
 
   @Test

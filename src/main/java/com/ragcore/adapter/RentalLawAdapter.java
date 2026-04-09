@@ -87,18 +87,35 @@ public class RentalLawAdapter implements DocumentAdapter {
     List<String> sections = splitter.split(cleaned);
     List<Chunk> chunks = new ArrayList<>();
 
+    // Max ~6000 chars per chunk to stay safely under OpenAI's 8192 token limit
+    int maxChunkSize = 6000;
+
     for (int i = 0; i < sections.size(); i++) {
       String section = sections.get(i);
       String firstLine = section.split("\\n")[0].strip();
 
-      Map<String, String> metadata = new HashMap<>();
-      metadata.put("sectionIndex", String.valueOf(i + 1));
-      metadata.put("sectionNumber", splitter.extractSectionNumber(firstLine));
-      metadata.put("sectionTitle", firstLine.isEmpty() ? "Unknown" : firstLine);
+      Map<String, String> baseMetadata = new HashMap<>();
+      baseMetadata.put("sectionIndex", String.valueOf(i + 1));
+      baseMetadata.put("sectionNumber", splitter.extractSectionNumber(firstLine));
+      baseMetadata.put("sectionTitle", firstLine.isEmpty() ? "Unknown" : firstLine);
 
-      chunks.add(new Chunk(section, metadata, fileName));
+      // If section is too long, split further by characters
+      if (section.length() > maxChunkSize) {
+        int part = 0;
+        for (int start = 0; start < section.length(); start += maxChunkSize) {
+          int end = Math.min(start + maxChunkSize, section.length());
+          String subChunk = section.substring(start, end).strip();
+          if (!subChunk.isBlank()) {
+            Map<String, String> metadata = new HashMap<>(baseMetadata);
+            metadata.put("part", String.valueOf(part + 1));
+            chunks.add(new Chunk(subChunk, metadata, fileName));
+            part++;
+          }
+        }
+      } else {
+        chunks.add(new Chunk(section, baseMetadata, fileName));
+      }
     }
-
     return chunks;
   }
 

@@ -36,7 +36,7 @@ class RagOrchestratorTest {
   }
 
   @Test
-  void index_validTxtFile_storesChunksAndUpdatesCount() throws Exception {
+  void index_generalDomain_usesSupportsMethod() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
         "file", "test.txt", "text/plain", "hello world".getBytes()
     );
@@ -45,10 +45,37 @@ class RagOrchestratorTest {
     when(mockAdapter.supports("test.txt")).thenReturn(true);
     when(mockAdapter.parse(any(), eq("test.txt"))).thenReturn(List.of(fakeChunk));
 
-    orchestrator.index(file);
+    orchestrator.index(file, "general");
 
     assertEquals(1, orchestrator.getChunkCount());
     verify(mockVectorStore).store(List.of(fakeChunk));
+  }
+
+  @Test
+  void index_specificDomain_usesDomainName() throws Exception {
+    MockMultipartFile file = new MockMultipartFile(
+        "file", "contract.pdf", "application/pdf", "legal text".getBytes()
+    );
+    Chunk fakeChunk = new Chunk("legal text", new HashMap<>(), "contract.pdf");
+
+    when(mockAdapter.getDomainName()).thenReturn("Rental Law");
+    when(mockAdapter.parse(any(), eq("contract.pdf"))).thenReturn(List.of(fakeChunk));
+
+    orchestrator.index(file, "rental_law");
+
+    assertEquals(1, orchestrator.getChunkCount());
+    verify(mockVectorStore).store(List.of(fakeChunk));
+  }
+
+  @Test
+  void index_unsupportedDomain_throwsException() {
+    MockMultipartFile file = new MockMultipartFile(
+        "file", "test.pdf", "application/pdf", "data".getBytes()
+    );
+    when(mockAdapter.getDomainName()).thenReturn("Film Script");
+
+    assertThrows(IllegalArgumentException.class,
+        () -> orchestrator.index(file, "unknown_domain"));
   }
 
   @Test
@@ -58,7 +85,8 @@ class RagOrchestratorTest {
     );
     when(mockAdapter.supports("test.docx")).thenReturn(false);
 
-    assertThrows(IllegalArgumentException.class, () -> orchestrator.index(file));
+    assertThrows(IllegalArgumentException.class,
+        () -> orchestrator.index(file, "general"));
   }
 
   @Test
