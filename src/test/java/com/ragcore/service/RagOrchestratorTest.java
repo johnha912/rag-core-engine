@@ -91,7 +91,7 @@ class RagOrchestratorTest {
 
   @Test
   void query_noChunksFound_returnsFallbackMessage() {
-    when(mockVectorStore.search("What is RAG?", 5)).thenReturn(List.of());
+    when(mockVectorStore.search("What is RAG?", 10)).thenReturn(List.of());
 
     String result = orchestrator.query("What is RAG?");
 
@@ -101,16 +101,39 @@ class RagOrchestratorTest {
   @Test
   void query_chunksFound_callsChatService() throws Exception {
     Chunk fakeChunk = new Chunk("relevant text", new HashMap<>(), "doc.txt");
-    when(mockVectorStore.search("What is RAG?", 5)).thenReturn(List.of(fakeChunk));
+    when(mockVectorStore.search("What is RAG?", 10)).thenReturn(List.of(fakeChunk));
 
     ChatService.ChatResponse fakeResponse = mock(ChatService.ChatResponse.class);
     when(fakeResponse.getAnswer()).thenReturn("RAG stands for Retrieval Augmented Generation");
     when(fakeResponse.getSources()).thenReturn(List.of("doc.txt"));
-    when(mockChatService.ask("What is RAG?", List.of(fakeChunk))).thenReturn(fakeResponse);
+    when(mockChatService.ask("What is RAG?", List.of(fakeChunk), null)).thenReturn(fakeResponse);
 
     String result = orchestrator.query("What is RAG?");
 
     assertTrue(result.contains("RAG stands for Retrieval Augmented Generation"));
-    verify(mockChatService).ask("What is RAG?", List.of(fakeChunk));
+    verify(mockChatService).ask("What is RAG?", List.of(fakeChunk), null);
+  }
+
+  @Test
+  void query_withConversationId_passesIdToChatService() throws Exception {
+    Chunk fakeChunk = new Chunk("relevant text", new HashMap<>(), "doc.txt");
+    when(mockVectorStore.search("Tell me more", 10)).thenReturn(List.of(fakeChunk));
+
+    ChatService.ChatResponse fakeResponse = mock(ChatService.ChatResponse.class);
+    when(fakeResponse.getAnswer()).thenReturn("Here is more detail.");
+    when(fakeResponse.getSources()).thenReturn(List.of("doc.txt"));
+    when(mockChatService.ask("Tell me more", List.of(fakeChunk), "session-1"))
+        .thenReturn(fakeResponse);
+
+    String result = orchestrator.query("Tell me more", "session-1");
+
+    assertTrue(result.contains("Here is more detail."));
+    verify(mockChatService).ask("Tell me more", List.of(fakeChunk), "session-1");
+  }
+
+  @Test
+  void clearConversation_delegatesToChatService() {
+    orchestrator.clearConversation("session-1");
+    verify(mockChatService).clearConversation("session-1");
   }
 }

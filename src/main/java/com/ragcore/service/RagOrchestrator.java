@@ -83,16 +83,28 @@ public class RagOrchestrator {
   }
 
   /**
-   * Answers a question using the full RAG pipeline.
-   *
-   * <p>Retrieves the top-5 most relevant chunks from the vector store and passes them
-   * as context to {@link ChatService} to generate a grounded answer. Returns a fallback
-   * message if no documents have been indexed yet.</p>
+   * Answers a question using the full RAG pipeline (stateless, no conversation history).
    *
    * @param question the user's question
    * @return the AI-generated answer with source citations, or a fallback message
    */
   public String query(String question) {
+    return query(question, null);
+  }
+
+  /**
+   * Answers a question using the full RAG pipeline with optional conversation history.
+   *
+   * <p>Retrieves the top-10 most relevant chunks from the vector store and passes them
+   * as context to {@link ChatService} to generate a grounded answer. When a
+   * {@code conversationId} is provided, prior messages from that session are included
+   * so the model can resolve follow-up references like "tell me more about that".</p>
+   *
+   * @param question       the user's question
+   * @param conversationId optional session ID for multi-turn conversations; null for stateless
+   * @return the AI-generated answer with source citations, or a fallback message
+   */
+  public String query(String question, String conversationId) {
     List<Chunk> relevant = vectorStore.search(question, 10);
 
     if (relevant.isEmpty()) {
@@ -101,7 +113,7 @@ public class RagOrchestrator {
     }
 
     try {
-      ChatService.ChatResponse response = chatService.ask(question, relevant);
+      ChatService.ChatResponse response = chatService.ask(question, relevant, conversationId);
 
       StringBuilder result = new StringBuilder(response.getAnswer());
       if (!response.getSources().isEmpty()) {
@@ -112,6 +124,15 @@ public class RagOrchestrator {
     } catch (Exception e) {
       throw new RuntimeException("Failed to generate answer: " + e.getMessage(), e);
     }
+  }
+
+  /**
+   * Clears conversation history for the given session.
+   *
+   * @param conversationId the session to clear
+   */
+  public void clearConversation(String conversationId) {
+    chatService.clearConversation(conversationId);
   }
 
   /** Returns {@code true} if a file is currently being indexed. */

@@ -33,12 +33,23 @@ class RagControllerTest {
 
   @Test
   void queryEndpoint_validQuestion_returnsOk() throws Exception {
-    when(orchestrator.query("What is RAG?")).thenReturn("Mock answer");
+    when(orchestrator.query("What is RAG?", null)).thenReturn("Mock answer");
 
     mockMvc.perform(post("/api/query")
             .param("question", "What is RAG?"))
         .andExpect(status().isOk())
         .andExpect(content().string("Mock answer"));
+  }
+
+  @Test
+  void queryEndpoint_withConversationId_returnsOk() throws Exception {
+    when(orchestrator.query("Tell me more", "session-1")).thenReturn("Follow-up answer");
+
+    mockMvc.perform(post("/api/query")
+            .param("question", "Tell me more")
+            .param("conversationId", "session-1"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Follow-up answer"));
   }
 
   @Test
@@ -82,5 +93,21 @@ class RagControllerTest {
 
     mockMvc.perform(multipart("/api/upload").file(emptyFile))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void clearConversation_returnsOk() throws Exception {
+    mockMvc.perform(delete("/api/conversation/session-1"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Conversation 'session-1' cleared."));
+
+    verify(orchestrator).clearConversation("session-1");
+  }
+
+  @Test
+  void resetEndpoint_returnsOk() throws Exception {
+    mockMvc.perform(delete("/api/reset"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Vector store cleared. Ready for new documents."));
   }
 }

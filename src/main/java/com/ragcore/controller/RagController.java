@@ -45,12 +45,21 @@ public class RagController {
 
   // ─── POST /api/query ────────────────────────────────────────────
   @PostMapping("/query")
-  public ResponseEntity<String> query(@RequestParam("question") String question) {
+  public ResponseEntity<String> query(
+      @RequestParam("question") String question,
+      @RequestParam(value = "conversationId", required = false) String conversationId) {
     if (question == null || question.isBlank()) {
       return ResponseEntity.badRequest().body("Question must not be empty.");
     }
-    String answer = orchestrator.query(question);
+    String answer = orchestrator.query(question, conversationId);
     return ResponseEntity.ok(answer);
+  }
+
+  // ─── DELETE /api/conversation/{id} ─────────────────────────────
+  @DeleteMapping("/conversation/{id}")
+  public ResponseEntity<String> clearConversation(@PathVariable("id") String id) {
+    orchestrator.clearConversation(id);
+    return ResponseEntity.ok("Conversation '" + id + "' cleared.");
   }
 
   // ─── GET /api/status ────────────────────────────────────────────

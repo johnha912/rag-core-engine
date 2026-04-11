@@ -1,0 +1,142 @@
+[
+  {
+    "id": "q01",
+    "question": "What is the implied warranty of habitability?",
+    "expectedAnswer": "The implied warranty of habitability requires landlords to maintain rental property in a condition fit for human habitation.",
+    "expectedKeywords": ["habitability", "landlord", "maintain", "livable"],
+    "expectedSourceKeywords": ["habitability", "1941"]
+  },
+  {
+    "id": "q02",
+    "question": "Under California Civil Code Section 1941, what must a landlord provide?",
+    "expectedAnswer": "Under Section 1941, landlords must provide weatherproof roofing, plumbing, heating, electricity, sanitation, and other essentials.",
+    "expectedKeywords": ["plumbing", "heating", "weatherproof"],
+    "expectedSourceKeywords": ["1941", "landlord"]
+  },
+  {
+    "id": "q03",
+    "question": "What is constructive eviction?",
+    "expectedAnswer": "Constructive eviction occurs when a landlord's actions or neglect make the property uninhabitable, effectively forcing the tenant to leave.",
+    "expectedKeywords": ["uninhabitable", "landlord", "tenant", "leave"],
+    "expectedSourceKeywords": ["eviction", "constructive"]
+  },
+  {
+    "id": "q04",
+    "question": "Can a tenant withhold rent if the landlord fails to make repairs?",
+    "expectedAnswer": "Yes, California law allows tenants to withhold rent when the landlord fails to maintain habitable conditions, after proper notice.",
+    "expectedKeywords": ["withhold", "rent", "repair", "notice"],
+    "expectedSourceKeywords": ["rent", "repair"]
+  },
+  {
+    "id": "q05",
+    "question": "What are a tenant's rights regarding quiet enjoyment?",
+    "expectedAnswer": "Tenants have the right to quiet enjoyment of their rental unit, meaning the landlord cannot unreasonably disturb their use of the property.",
+    "expectedKeywords": ["quiet enjoyment", "landlord", "disturb"],
+    "expectedSourceKeywords": ["quiet", "enjoyment"]
+  },
+  {
+    "id": "q06",
+    "question": "How much notice must a landlord give before entering a rental unit?",
+    "expectedAnswer": "In California, landlords must generally give at least 24 hours written notice before entering a rental unit, except in emergencies.",
+    "expectedKeywords": ["24 hours", "notice", "emergency"],
+    "expectedSourceKeywords": ["notice", "enter"]
+  },
+  {
+    "id": "q07",
+    "question": "What is the repair-and-deduct remedy?",
+    "expectedAnswer": "The repair-and-deduct remedy allows a tenant to arrange for repairs and deduct the cost from rent when the landlord fails to fix habitability issues.",
+    "expectedKeywords": ["repair", "deduct", "rent", "tenant"],
+    "expectedSourceKeywords": ["repair", "deduct"]
+  },
+  {
+    "id": "q08",
+    "question": "What are the grounds for eviction in California?",
+    "expectedAnswer": "Grounds for eviction include nonpayment of rent, lease violations, nuisance, illegal activity, and owner move-in under just cause protections.",
+    "expectedKeywords": ["nonpayment", "lease", "violation"],
+    "expectedSourceKeywords": ["eviction", "grounds"]
+  },
+  {
+    "id": "q09",
+    "question": "What is a security deposit and what are the rules around returning it?",
+    "expectedAnswer": "A security deposit is money held by the landlord as protection against damage. California law requires return within 21 days of move-out, minus documented deductions.",
+    "expectedKeywords": ["security deposit", "21 days", "deduction"],
+    "expectedSourceKeywords": ["security", "deposit"]
+  },
+  {
+    "id": "q10",
+    "question": "Can a landlord raise rent without limit in California?",
+    "expectedAnswer": "No. California's Tenant Protection Act (AB 1482) limits annual rent increases to 5% plus local CPI, or 10%, whichever is lower, for covered properties.",
+    "expectedKeywords": ["rent increase", "limit", "1482"],
+    "expectedSourceKeywords": ["rent", "increase"]
+  },
+  {
+    "id": "q11",
+    "question": "What should a tenant do if they discover mold in their apartment?",
+    "expectedAnswer": "The tenant should notify the landlord in writing, request remediation, and if the landlord fails to act, may use repair-and-deduct or withhold rent.",
+    "expectedKeywords": ["mold", "notify", "landlord", "writing"],
+    "expectedSourceKeywords": ["mold", "health"]
+  },
+  {
+    "id": "q12",
+    "question": "Are landlords required to provide working smoke detectors?",
+    "expectedAnswer": "Yes, California law requires landlords to install and maintain working smoke detectors in rental properties.",
+    "expectedKeywords": ["smoke detector", "landlord", "required"],
+    "expectedSourceKeywords": ["smoke", "detector"]
+  },
+  {
+    "id": "q13",
+    "question": "What is retaliatory eviction?",
+    "expectedAnswer": "Retaliatory eviction occurs when a landlord tries to evict a tenant for exercising their legal rights, such as complaining about habitability issues.",
+    "expectedKeywords": ["retaliatory", "eviction", "rights", "complaint"],
+    "expectedSourceKeywords": ["retaliat", "eviction"]
+  },
+  {
+    "id": "q14",
+    "question": "How does a lease differ from a month-to-month rental agreement?",
+    "expectedAnswer": "A lease is for a fixed term with set conditions, while a month-to-month agreement renews automatically and can be terminated with proper notice.",
+    "expectedKeywords": ["lease", "month-to-month", "fixed", "notice"],
+    "expectedSourceKeywords": ["lease", "month"]
+  },
+  {
+    "id": "q15",
+    "question": "What are a tenant's options if the landlord refuses to return the security deposit?",
+    "expectedAnswer": "The tenant can send a demand letter and file a claim in small claims court to recover the deposit plus potential penalties.",
+    "expectedKeywords": ["small claims", "demand", "penalty"],
+    "expectedSourceKeywords": ["deposit", "return"]
+  },
+  {
+    "id": "q16",
+    "question": "Can a landlord prohibit tenants from having pets?",
+    "expectedAnswer": "Landlords can generally prohibit pets in the lease, but must make reasonable accommodations for service animals and emotional support animals under fair housing laws.",
+    "expectedKeywords": ["pet", "service animal", "accommodation"],
+    "expectedSourceKeywords": ["pet", "animal"]
+  },
+  {
+    "id": "q17",
+    "question": "What is the process for a legal eviction in California?",
+    "expectedAnswer": "The landlord must serve a written notice, file an unlawful detainer lawsuit if the tenant does not comply, and obtain a court judgment before the sheriff can execute the eviction.",
+    "expectedKeywords": ["notice", "unlawful detainer", "court"],
+    "expectedSourceKeywords": ["eviction", "process"]
+  },
+  {
+    "id": "q18",
+    "question": "Are there protections against housing discrimination in California?",
+    "expectedAnswer": "Yes, the Fair Employment and Housing Act (FEHA) prohibits discrimination based on race, religion, sex, disability, familial status, and other protected categories.",
+    "expectedKeywords": ["discrimination", "protected", "race"],
+    "expectedSourceKeywords": ["discrimination", "housing"]
+  },
+  {
+    "id": "q19",
+    "question": "What responsibility does a tenant have to maintain the rental unit?",
+    "expectedAnswer": "Tenants must keep the unit clean and sanitary, dispose of garbage properly, use fixtures appropriately, and not cause deliberate damage.",
+    "expectedKeywords": ["clean", "sanitary", "damage", "tenant"],
+    "expectedSourceKeywords": ["tenant", "maintain"]
+  },
+  {
+    "id": "q20",
+    "question": "Can a tenant break a lease early without penalty?",
+    "expectedAnswer": "A tenant may break a lease early without penalty in specific circumstances such as military deployment, domestic violence, or uninhabitable conditions.",
+    "expectedKeywords": ["break", "lease", "military", "uninhabitable"],
+    "expectedSourceKeywords": ["lease", "early"]
+  }
+]
