@@ -32,7 +32,10 @@
     .hint.err{color:#c0392b}
     .sep{height:1px;background:#f5f5f5;margin:36px 0}
     .answer-wrap{border:1px solid #f0f0f0;border-radius:10px;overflow:hidden}
-    .answer-box{padding:20px;min-height:120px;font-size:14px;line-height:1.8;color:#333;background:#fafafa;white-space:pre-wrap}
+    .answer-box{padding:20px;min-height:120px;font-size:14px;line-height:1.8;color:#333;background:#fafafa;white-space:pre-wrap;word-break:break-word}
+    /* Question shown inside answer box */
+    .answer-question{font-size:13px;font-weight:600;color:#111;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ebebeb}
+    .answer-text{color:#333}
     .sources-row{padding:10px 20px;border-top:1px solid #f0f0f0;display:flex;flex-wrap:wrap;gap:6px;background:#fff}
     .tag{font-size:12px;color:#888;background:#f5f5f5;border-radius:4px;padding:2px 8px}
     .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#888;background:#f9f9f9;border:1px solid #f0f0f0;border-radius:6px;padding:6px 12px}
@@ -45,132 +48,169 @@
   <a class="logo" href="/">Omni<span>RAG</span></a>
   <button class="nav-btn" onclick="window.location.href='/'">Home</button>
 </nav>
+
 <div class="main">
   <div class="page-title">Document Q&A</div>
   <div class="page-sub">Upload a document, then ask anything about it.</div>
 
+  <!-- UPLOAD -->
   <div class="section-label">Upload</div>
   <div class="input-row">
-    <label class="file-label" for="fileInput" id="fileLabel">Choose a file...</label>
-    <input type="file" id="fileInput" accept=".pdf,.docx,.md,.srt,.vtt,.txt,.html,.csv,.json,.fdx"/>
+    <label class="file-label" for="fileInput" id="fileLabel">Choose files...</label>
+    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.md,.srt,.vtt,.txt,.html,.csv,.json,.fdx"/>
     <select id="domainSelect">
       <option value="general">General</option>
       <option value="film_script">Film Script</option>
       <option value="rental_law">Rental Law</option>
-      <option value="general">Database / Technical</option>
+      <option value="markdown">Database / Technical</option>
     </select>
   </div>
+
+  <div id="fileList" style="margin:8px 0;display:none">
+    <div style="font-size:11px;color:#bbb;margin-bottom:6px">SELECTED FILES</div>
+    <div id="fileItems" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+
   <div class="input-row">
-    <button class="btn" onclick="uploadFile()">Upload & Index<span class="spinner" id="uploadSpinner"></span></button>
+    <button class="btn" onclick="uploadFiles()">Upload & Index<span class="spinner" id="uploadSpinner"></span></button>
     <button class="btn-danger" onclick="resetStore()">Reset</button>
   </div>
-  <div class="hint" id="uploadStatus">No file uploaded yet.</div>
+  <div class="hint" id="uploadStatus">No files uploaded yet.</div>
 
   <div class="sep"></div>
 
+  <!-- ASK -->
   <div class="section-label">Ask</div>
   <div class="input-row">
     <input type="text" id="questionInput" placeholder="e.g. What happens in scene 3?" onkeydown="if(event.key==='Enter') askQuestion()"/>
     <button class="btn" onclick="askQuestion()">Ask<span class="spinner" id="querySpinner"></span></button>
   </div>
   <div class="answer-wrap">
-    <div class="answer-box" id="answerBox">Your answer will appear here.</div>
+    <div class="answer-box" id="answerBox">
+      <span style="color:#ccc">Your answer will appear here.</span>
+    </div>
     <div class="sources-row" id="sourcesBox" style="display:none"></div>
   </div>
 
   <div class="sep"></div>
 
+  <!-- STATUS -->
   <div class="section-label">Status</div>
   <div class="status-pill" id="statusBox">Loading...</div>
 </div>
 
 <script>
+  // ── File selection ────────────────────────────────────────
   document.getElementById('fileInput').addEventListener('change', e => {
-    document.getElementById('fileLabel').textContent = e.target.files[0]?.name || 'Choose a file...';
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    document.getElementById('fileLabel').textContent =
+        files.length === 1 ? files[0].name : `${files.length} files selected`;
+    document.getElementById('fileItems').innerHTML =
+        files.map(f => `<span class="tag">📄 ${f.name}</span>`).join('');
+    document.getElementById('fileList').style.display = 'block';
   });
-  async function uploadFile() {
-    const file = document.getElementById('fileInput').files[0];
+
+  // ── Upload files ──────────────────────────────────────────
+  async function uploadFiles() {
+    const files = Array.from(document.getElementById('fileInput').files);
     const domain = document.getElementById('domainSelect').value;
-    if (!file) { setHint('Please select a file.',''); return; }
-    showSpinner('uploadSpinner'); setHint('Uploading...','');
-    const form = new FormData(); form.append('file', file);
-    try {
-      const res = await fetch(`/api/upload?domain=${domain}`,{method:'POST',body:form});
-      const text = await res.text();
-      setHint((res.ok?'✅ ':'❌ ')+text, res.ok?'ok':'err');
-      checkStatus();
-    } catch(e){ setHint('❌ '+e.message,'err'); }
-    finally{ hideSpinner('uploadSpinner'); }
+    if (!files.length) { setHint('Please select at least one file.', ''); return; }
+
+    showSpinner('uploadSpinner');
+    let ok = 0, errs = [];
+
+    for (const file of files) {
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch(`/api/upload?domain=${domain}`, { method: 'POST', body: form });
+        const text = await res.text();
+        if (res.ok) { ok++; setHint(`✅ Uploaded ${ok}/${files.length}: ${file.name}`, 'ok'); }
+        else errs.push(`❌ ${file.name}: ${text}`);
+      } catch (e) { errs.push(`❌ ${file.name}: ${e.message}`); }
+    }
+
+    hideSpinner('uploadSpinner');
+    errs.length === 0
+        ? setHint(`✅ All ${ok} files uploaded and indexed!`, 'ok')
+        : setHint(`⚠️ ${ok} succeeded, ${errs.length} failed: ${errs[0]}`, 'err');
+    checkStatus();
   }
+
+  // ── Ask question (SSE streaming) ──────────────────────────
   async function askQuestion() {
     const q = document.getElementById('questionInput').value.trim();
     if (!q) return;
+
     showSpinner('querySpinner');
     document.getElementById('questionInput').value = '';
-    document.getElementById('answerBox').textContent = '';
     document.getElementById('sourcesBox').style.display = 'none';
 
+    // Show the question first, then a placeholder for the streaming answer
     const answerBox = document.getElementById('answerBox');
-    answerBox.textContent = '';
+    answerBox.innerHTML =
+        `<div class="answer-question">Q: ${q}</div>` +
+        `<div class="answer-text" id="answerText"></div>`;
+    const answerText = document.getElementById('answerText');
 
-    try {
-      const evtSource = new EventSource(`/api/stream?question=${encodeURIComponent(q)}`);
+    const evtSource = new EventSource(`/api/stream?question=${encodeURIComponent(q)}`);
 
-      evtSource.onmessage = (e) => {
-        answerBox.textContent += e.data;
-      };
-
-      evtSource.onerror = () => {
+    evtSource.onmessage = e => {
+      if (e.data === '[DONE]') {
         evtSource.close();
         hideSpinner('querySpinner');
-      };
+        return;
+      }
+      // Tokens are JSON-encoded by the backend to preserve leading spaces.
+      answerText.textContent += JSON.parse(e.data);
+    };
 
-    } catch(e){
-      answerBox.textContent = '❌ '+e.message;
+    evtSource.onerror = () => {
+      evtSource.close();
       hideSpinner('querySpinner');
-    }
+    };
   }
+
+  // ── Reset vector store ────────────────────────────────────
   async function resetStore() {
     if (!confirm('Clear all indexed documents?')) return;
     try {
-      const res = await fetch('/api/reset',{method:'DELETE'});
-      setHint('🗑️ '+await res.text(),''); checkStatus();
-    } catch(e){ setHint('❌ '+e.message,'err'); }
+      const res = await fetch('/api/reset', { method: 'DELETE' });
+      setHint('🗑️ ' + await res.text(), '');
+      checkStatus();
+    } catch (e) { setHint('❌ ' + e.message, 'err'); }
   }
+
+  // ── Poll backend status ───────────────────────────────────
   async function checkStatus() {
     try {
-      const res = await fetch('/api/status');
-      const text = await res.text();
-      const isIndexing = text.includes('Indexing: true');
-      const chunkMatch = text.match(/Chunks stored: (\d+)/);
-      const chunks = chunkMatch ? chunkMatch[1] : '0';
-
+      const text = await (await fetch('/api/status')).text();
+      const chunks = (text.match(/Chunks stored: (\d+)/) || [, '0'])[1];
       const el = document.getElementById('statusBox');
-      if (isIndexing) {
-        el.textContent = 'Indexing...';
-        el.style.color = '#b45309';
+      if (text.includes('Indexing: true')) {
+        el.textContent = 'Indexing...'; el.style.color = '#b45309';
         setTimeout(checkStatus, 1000);
       } else if (chunks === '0') {
-        el.textContent = 'No documents indexed';
-        el.style.color = '#bbb';
+        el.textContent = 'No documents indexed'; el.style.color = '#bbb';
       } else {
-        el.textContent = `Ready  ·  ${chunks} chunks indexed`;
-        el.style.color = '#16a34a';
+        el.textContent = `Ready  ·  ${chunks} chunks indexed`; el.style.color = '#16a34a';
       }
-    } catch(e) {
+    } catch {
       const el = document.getElementById('statusBox');
-      el.textContent = 'Server offline';
-      el.style.color = '#c0392b';
+      el.textContent = 'Server offline'; el.style.color = '#c0392b';
     }
   }
-  checkStatus();
+
+  // ── Utilities ─────────────────────────────────────────────
   function setHint(msg, cls) {
     const el = document.getElementById('uploadStatus');
-    el.textContent = msg;
-    el.className = 'hint ' + cls;
+    el.textContent = msg; el.className = 'hint ' + cls;
   }
   function showSpinner(id) { document.getElementById(id).style.display = 'inline-block'; }
   function hideSpinner(id) { document.getElementById(id).style.display = 'none'; }
+
+  checkStatus();
 </script>
 </body>
 </html>

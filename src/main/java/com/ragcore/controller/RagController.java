@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * REST controller for the RAG Core Engine.
- * Exposes endpoints for file upload, querying, and status checking.
+ * Exposes endpoints for file upload, querying, status checking, and SSE streaming.
  */
 @RestController
 @RequestMapping("/api")
@@ -51,6 +51,7 @@ public class RagController {
   public ResponseEntity<String> query(
       @RequestParam("question") String question,
       @RequestParam(value = "conversationId", required = false) String conversationId) {
+
     if (question == null || question.isBlank()) {
       return ResponseEntity.badRequest().body("Question must not be empty.");
     }
@@ -76,7 +77,7 @@ public class RagController {
   // ─── GET /api/stream ────────────────────────────────────────────
   @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter stream(@RequestParam("question") String question) {
-    SseEmitter emitter = new SseEmitter(60_000L); // 60秒超时
+    SseEmitter emitter = new SseEmitter(60_000L);
 
     if (question == null || question.isBlank()) {
       emitter.completeWithError(new IllegalArgumentException("Question must not be empty."));
@@ -88,21 +89,27 @@ public class RagController {
         List<com.ragcore.model.Chunk> relevant = orchestrator.searchOnly(question);
 
         if (relevant.isEmpty()) {
+          // 与 token 格式保持一致，前端 JSON.parse() 才不会报错
           emitter.send(SseEmitter.event()
-              .data("No relevant content found. Please upload a document first."));
+              .data("\"No relevant content found. Please upload a document first.\""));
+          emitter.send(SseEmitter.event().data("[DONE]"));
           emitter.complete();
           return;
         }
 
         orchestrator.getChatService().askStream(question, relevant, token -> {
           try {
-            emitter.send(SseEmitter.event().data(token));
+            // JSON 包一层，防止 SSE 协议剥离 token 前导空格
+            emitter.send(SseEmitter.event()
+                .data("\"" + token.replace("\\", "\\\\").replace("\"", "\\\"") + "\""));
           } catch (Exception e) {
             emitter.completeWithError(e);
           }
         });
 
+        emitter.send(SseEmitter.event().data("[DONE]"));
         emitter.complete();
+
       } catch (Exception e) {
         emitter.completeWithError(e);
       }
