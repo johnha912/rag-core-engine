@@ -28,6 +28,7 @@ public class RagOrchestrator {
   private final List<DocumentAdapter> adapters;
   private final VectorStore vectorStore;
   private final ChatService chatService;
+  private final Reranker reranker;
 
   private final AtomicBoolean indexing = new AtomicBoolean(false);
   private final AtomicInteger chunkCount = new AtomicInteger(0);
@@ -35,10 +36,12 @@ public class RagOrchestrator {
   @Autowired
   public RagOrchestrator(List<DocumentAdapter> adapters,
                          VectorStore vectorStore,
-                         ChatService chatService) {
+                         ChatService chatService,
+                         Reranker reranker) {
     this.adapters = adapters;
     this.vectorStore = vectorStore;
     this.chatService = chatService;
+    this.reranker = reranker;
   }
 
   /**
@@ -112,8 +115,12 @@ public class RagOrchestrator {
           + "Please upload a document first.";
     }
 
+    // Re-rank the top-10 candidates and keep the best 5 for the LLM prompt.
+    List<Chunk> reranked = reranker.rerank(question, relevant);
+    List<Chunk> top5 = reranked.subList(0, Math.min(5, reranked.size()));
+
     try {
-      ChatService.ChatResponse response = chatService.ask(question, relevant, conversationId);
+      ChatService.ChatResponse response = chatService.ask(question, top5, conversationId);
 
       StringBuilder result = new StringBuilder(response.getAnswer());
       if (!response.getSources().isEmpty()) {

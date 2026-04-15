@@ -1,6 +1,7 @@
 package com.ragcore.config;
 
 import com.ragcore.service.ChatService;
+import com.ragcore.service.LlmReranker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,5 +28,14 @@ public class AppConfig {
       throw new IllegalStateException("OPENAI_API_KEY environment variable is not set.");
     }
     return new ChatService(apiKey);
+  }
+
+  @Bean
+  public LlmReranker reranker() {
+    String apiKey = System.getenv("OPENAI_API_KEY");
+    if (apiKey == null || apiKey.isBlank()) {
+      throw new IllegalStateException("OPENAI_API_KEY environment variable is not set.");
+    }
+    return new LlmReranker(apiKey);
   }
 }

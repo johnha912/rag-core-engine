@@ -80,6 +80,13 @@
       <version>1.17.2</version>
     </dependency>
 
+    <!-- SQLite JDBC (persistent vector store) -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.45.3.0</version>
+    </dependency>
+
     <!-- Spring Boot Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

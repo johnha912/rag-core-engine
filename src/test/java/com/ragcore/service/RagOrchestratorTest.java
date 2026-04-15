@@ -17,6 +17,7 @@ class RagOrchestratorTest {
   private DocumentAdapter mockAdapter;
   private VectorStore mockVectorStore;
   private ChatService mockChatService;
+  private Reranker mockReranker;
   private RagOrchestrator orchestrator;
 
   @BeforeEach
@@ -24,8 +25,9 @@ class RagOrchestratorTest {
     mockAdapter = mock(DocumentAdapter.class);
     mockVectorStore = mock(VectorStore.class);
     mockChatService = mock(ChatService.class);
+    mockReranker = mock(Reranker.class);
     orchestrator = new RagOrchestrator(
-        List.of(mockAdapter), mockVectorStore, mockChatService
+        List.of(mockAdapter), mockVectorStore, mockChatService, mockReranker
     );
   }
 
@@ -99,9 +101,10 @@ class RagOrchestratorTest {
   }
 
   @Test
-  void query_chunksFound_callsChatService() throws Exception {
+  void query_chunksFound_reranksAndCallsChatService() throws Exception {
     Chunk fakeChunk = new Chunk("relevant text", new HashMap<>(), "doc.txt");
     when(mockVectorStore.search("What is RAG?", 10)).thenReturn(List.of(fakeChunk));
+    when(mockReranker.rerank("What is RAG?", List.of(fakeChunk))).thenReturn(List.of(fakeChunk));
 
     ChatService.ChatResponse fakeResponse = mock(ChatService.ChatResponse.class);
     when(fakeResponse.getAnswer()).thenReturn("RAG stands for Retrieval Augmented Generation");
@@ -111,6 +114,7 @@ class RagOrchestratorTest {
     String result = orchestrator.query("What is RAG?");
 
     assertTrue(result.contains("RAG stands for Retrieval Augmented Generation"));
+    verify(mockReranker).rerank("What is RAG?", List.of(fakeChunk));
     verify(mockChatService).ask("What is RAG?", List.of(fakeChunk), null);
   }
 
@@ -118,6 +122,7 @@ class RagOrchestratorTest {
   void query_withConversationId_passesIdToChatService() throws Exception {
     Chunk fakeChunk = new Chunk("relevant text", new HashMap<>(), "doc.txt");
     when(mockVectorStore.search("Tell me more", 10)).thenReturn(List.of(fakeChunk));
+    when(mockReranker.rerank("Tell me more", List.of(fakeChunk))).thenReturn(List.of(fakeChunk));
 
     ChatService.ChatResponse fakeResponse = mock(ChatService.ChatResponse.class);
     when(fakeResponse.getAnswer()).thenReturn("Here is more detail.");
@@ -128,6 +133,7 @@ class RagOrchestratorTest {
     String result = orchestrator.query("Tell me more", "session-1");
 
     assertTrue(result.contains("Here is more detail."));
+    verify(mockReranker).rerank("Tell me more", List.of(fakeChunk));
     verify(mockChatService).ask("Tell me more", List.of(fakeChunk), "session-1");
   }
 

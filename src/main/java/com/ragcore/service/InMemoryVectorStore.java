@@ -2,7 +2,6 @@ package com.ragcore.service;
 
 import com.ragcore.model.Chunk;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
  * development and course use; a persistent store would be needed for production.</p>
  */
 @Service
-@Primary
 public class InMemoryVectorStore implements VectorStore {
 
   private final List<Chunk> store = new CopyOnWriteArrayList<>();
