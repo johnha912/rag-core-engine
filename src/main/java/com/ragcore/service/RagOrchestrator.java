@@ -160,5 +160,13 @@ public class RagOrchestrator {
     vectorStore.clear();
     chunkCount.set(0);
   }
+
+  public List<Chunk> searchOnly(String question) {
+    return vectorStore.search(question, 10);
+  }
+
+  public ChatService getChatService() {
+    return chatService;
+  }
 }
 

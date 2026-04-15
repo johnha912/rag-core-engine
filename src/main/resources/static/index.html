@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Omni RAG</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#111;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:60px;border-bottom:1px solid #f0f0f0}
+.logo{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.logo span{color:#888;font-weight:400}
+.hero{max-width:760px;margin:0 auto;padding:120px 24px 80px;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#555;border:1px solid #e5e5e5;border-radius:20px;padding:4px 12px;margin-bottom:32px}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#22c55e}
+h1{font-size:52px;font-weight:600;line-height:1.15;letter-spacing:-1.5px;color:#0a0a0a;margin-bottom:20px}
+h1 em{font-style:normal;color:#888}
+.hero-sub{font-size:17px;color:#666;line-height:1.6;max-width:520px;margin:0 auto 40px}
+.btn-primary{background:#000;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:#222}
+.divider{height:1px;background:#f0f0f0;max-width:900px;margin:0 auto}
+.features{max-width:900px;margin:80px auto;padding:0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.feature-icon{font-size:20px;margin-bottom:14px}
+.feature h3{font-size:15px;font-weight:600;margin-bottom:8px;color:#0a0a0a}
+.feature p{font-size:14px;color:#666;line-height:1.6}
+.how{max-width:760px;margin:40px auto 80px;padding:0 24px}
+.how h2{font-size:28px;font-weight:600;letter-spacing:-.5px;margin-bottom:40px;text-align:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{padding:24px;background:#fafafa;border-radius:10px;border:1px solid #f0f0f0}
+.step-num{font-size:12px;color:#999;margin-bottom:10px;font-weight:500}
+.step h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.step p{font-size:13px;color:#666;line-height:1.5}
+.domains{max-width:900px;margin:0 auto 100px;padding:0 24px;text-align:center}
+.domains h2{font-size:28px;font-weight:600;letter-spacing:-.5px;margin-bottom:12px}
+.domains p{font-size:15px;color:#666;margin-bottom:32px}
+.domain-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.domain-tag{font-size:13px;color:#444;border:1px solid #e5e5e5;border-radius:20px;padding:6px 16px}
+.cta{background:#0a0a0a;padding:80px 24px;text-align:center}
+.cta h2{font-size:32px;font-weight:600;color:#fff;letter-spacing:-.5px;margin-bottom:12px}
+.cta p{color:#888;font-size:15px;margin-bottom:32px}
+.btn-white{background:#fff;color:#000;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-white:hover{background:#f0f0f0}
+footer{padding:24px 48px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0f0f0}
+footer span{font-size:13px;color:#ccc}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Omni<span>RAG</span></div>
+  <a href="https://github.com/johnha912/rag-core-engine" target="_blank" style="font-size:14px;color:#444;text-decoration:none">GitHub</a>
+</nav>
+
+<div class="hero">
+  <div class="badge"><div class="badge-dot"></div>Now in beta — built at Northeastern</div>
+  <h1>Ask anything.<br/><em>From any document.</em></h1>
+  <p class="hero-sub">Omni RAG turns your files into a searchable knowledge base. Upload a script, a contract, or a report — then ask questions and get precise answers.</p>
+  <a class="btn-primary" href="/app.html">Get started</a>
+</div>
+
+<div class="divider"></div>
+
+<div class="features">
+  <div class="feature">
+    <div class="feature-icon">◈</div>
+    <h3>Domain-aware parsing</h3>
+    <p>Each document type gets its own adapter. Screenplays split by scene. Contracts split by clause. Built for precision.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">◎</div>
+    <h3>Semantic search</h3>
+    <p>Powered by OpenAI embeddings and cosine similarity. Find the most relevant passages — not just keyword matches.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">◇</div>
+    <h3>Cited answers</h3>
+    <p>Every answer includes the source page or section it came from. No hallucinations, no guessing.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="how" style="margin-top:80px">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Upload</h4>
+      <p>Drop in a PDF, DOCX, MD, SRT, HTML, or CSV. Choose your domain to get the right adapter.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Index</h4>
+      <p>Your document is chunked, embedded, and stored in a vector database — ready in seconds.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Ask</h4>
+      <p>Type any question. Omni RAG retrieves the most relevant chunks and generates a grounded answer.</p>
+    </div>
+  </div>
+</div>
+
+<div class="domains">
+  <h2>Works with every format</h2>
+  <p>Built-in adapters for the documents you actually use.</p>
+  <div class="domain-grid">
+    <span class="domain-tag">Film Script (.pdf, .fdx, .docx)</span>
+    <span class="domain-tag">Subtitle (.srt, .vtt)</span>
+    <span class="domain-tag">Storyboard (.storyboard, .txt)</span>
+    <span class="domain-tag">Legal Contract (.pdf, .docx)</span>
+    <span class="domain-tag">Technical Docs (.md, .html)</span>
+    <span class="domain-tag">Structured Data (.csv, .json)</span>
+  </div>
+</div>
+
+<div class="cta">
+  <h2>Ready to try it?</h2>
+  <p>Upload your first document in seconds.</p>
+  <a class="btn-white" href="/app.html">Get started</a>
+</div>
+
+<footer>
+  <span>© 2026 Omni RAG — Northeastern University</span>
+  <span>Java · Spring Boot · OpenAI</span>
+</footer>
+
+</body>
+</html>

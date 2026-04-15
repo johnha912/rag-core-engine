@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import java.util.List;
 
 /**
  * REST controller for the RAG Core Engine.
@@ -68,6 +71,44 @@ public class RagController {
     String status = "Indexing: " + orchestrator.isIndexing()
         + " | Chunks stored: " + orchestrator.getChunkCount();
     return ResponseEntity.ok(status);
+  }
+
+  // ─── GET /api/stream ────────────────────────────────────────────
+  @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public SseEmitter stream(@RequestParam("question") String question) {
+    SseEmitter emitter = new SseEmitter(60_000L); // 60秒超时
+
+    if (question == null || question.isBlank()) {
+      emitter.completeWithError(new IllegalArgumentException("Question must not be empty."));
+      return emitter;
+    }
+
+    new Thread(() -> {
+      try {
+        List<com.ragcore.model.Chunk> relevant = orchestrator.searchOnly(question);
+
+        if (relevant.isEmpty()) {
+          emitter.send(SseEmitter.event()
+              .data("No relevant content found. Please upload a document first."));
+          emitter.complete();
+          return;
+        }
+
+        orchestrator.getChatService().askStream(question, relevant, token -> {
+          try {
+            emitter.send(SseEmitter.event().data(token));
+          } catch (Exception e) {
+            emitter.completeWithError(e);
+          }
+        });
+
+        emitter.complete();
+      } catch (Exception e) {
+        emitter.completeWithError(e);
+      }
+    }).start();
+
+    return emitter;
   }
 
   // ─── DELETE /api/reset ──────────────────────────────────────────

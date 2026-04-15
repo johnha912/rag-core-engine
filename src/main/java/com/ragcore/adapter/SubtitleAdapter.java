@@ -22,7 +22,7 @@ public class SubtitleAdapter implements DocumentAdapter {
 
   // Matches SRT timecode: "00:01:23,456 --> 00:01:26,789"
   private static final Pattern TIMECODE_PATTERN = Pattern.compile(
-      "(\\d{2}:\\d{2}:\\d{2},\\d{3})\\s-->\\s(\\d{2}:\\d{2}:\\d{2},\\d{3})"
+      "(\\d{2}:\\d{2}:\\d{2}[,.]\\d{3})\\s-->\\s(\\d{2}:\\d{2}:\\d{2}[,.]\\d{3})"
   );
 
   // Matches subtitle index number on its own line
@@ -102,7 +102,8 @@ public class SubtitleAdapter implements DocumentAdapter {
   @Override
   public boolean supports(String fileName) {
     if (fileName == null || fileName.isBlank()) return false;
-    return fileName.toLowerCase().endsWith(".srt");
+    String lower = fileName.toLowerCase();
+    return lower.endsWith(".srt") || lower.endsWith(".vtt");
   }
 
   @Override

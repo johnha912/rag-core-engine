@@ -298,6 +298,101 @@ public class ChatService {
   }
 
   /**
+   * Streams the answer token by token using OpenAI's streaming API.
+   * Each token is passed to the provided consumer as it arrives.
+   *
+   * @param question the user's question
+   * @param chunks   the top-K retrieved chunks for context
+   * @param onToken  callback called for each token received
+   * @throws Exception if the API call fails
+   */
+  public void askStream(String question, List<Chunk> chunks,
+      java.util.function.Consumer<String> onToken) throws Exception {
+    if (question == null || question.isBlank()) {
+      throw new IllegalArgumentException("Question cannot be null or blank.");
+    }
+    if (chunks == null || chunks.isEmpty()) {
+      throw new IllegalArgumentException("Chunks cannot be null or empty.");
+    }
+
+    StringBuilder contextBuilder = new StringBuilder();
+    for (Chunk c : chunks) {
+      contextBuilder.append("[Source: ").append(c.getSource());
+      if (c.getMetadata().containsKey("page")) {
+        contextBuilder.append(", Page ").append(c.getMetadata().get("page"));
+      }
+      contextBuilder.append("]\n");
+      contextBuilder.append(c.getContent()).append("\n\n");
+    }
+
+    String systemPrompt = "You are an expert legal and document analysis assistant with deep knowledge "
+        + "of California tenant rights law, including California Civil Code Section 1941 "
+        + "(implied warranty of habitability), constructive eviction, quiet enjoyment rights, "
+        + "and tenant remedies. "
+        + "Answer the user's question based primarily on the provided context. "
+        + "If the context does not contain enough information, say so clearly. "
+        + "Always cite which source and page your answer comes from.\n\n"
+        + "Context:\n" + contextBuilder;
+
+    JsonObject requestBody = new JsonObject();
+    requestBody.addProperty("model", model);
+    requestBody.addProperty("stream", true);  // 关键：开启流式模式
+
+    JsonArray messages = new JsonArray();
+
+    JsonObject systemMessage = new JsonObject();
+    systemMessage.addProperty("role", "system");
+    systemMessage.addProperty("content", systemPrompt);
+    messages.add(systemMessage);
+
+    JsonObject userMessage = new JsonObject();
+    userMessage.addProperty("role", "user");
+    userMessage.addProperty("content", question);
+    messages.add(userMessage);
+
+    requestBody.add("messages", messages);
+    requestBody.addProperty("temperature", 0.3);
+
+    RequestBody body = RequestBody.create(gson.toJson(requestBody), JSON_MEDIA);
+    Request request = new Request.Builder()
+        .url(OPENAI_CHAT_URL)
+        .addHeader("Authorization", "Bearer " + apiKey)
+        .addHeader("Content-Type", "application/json")
+        .post(body)
+        .build();
+
+    try (Response response = httpClient.newCall(request).execute()) {
+      if (!response.isSuccessful() || response.body() == null) {
+        throw new RuntimeException("OpenAI API error (HTTP " + response.code() + ")");
+      }
+
+      // 逐行读取 SSE 流
+      var source = response.body().source();
+      while (!source.exhausted()) {
+        String line = source.readUtf8Line();
+        if (line == null || line.isEmpty()) continue;
+        if (!line.startsWith("data: ")) continue;
+
+        String data = line.substring(6);
+        if (data.equals("[DONE]")) break;
+
+        try {
+          JsonObject json = gson.fromJson(data, JsonObject.class);
+          JsonObject delta = json
+              .getAsJsonArray("choices")
+              .get(0).getAsJsonObject()
+              .getAsJsonObject("delta");
+
+          if (delta.has("content")) {
+            String token = delta.get("content").getAsString();
+            onToken.accept(token);  // 每个词立刻发出去
+          }
+        } catch (Exception ignored) {}
+      }
+    }
+  }
+
+  /**
    * Clears the conversation history for the given session.
    *
    * @param conversationId the session to clear
