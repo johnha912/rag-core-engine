@@ -2,12 +2,15 @@ package com.ragcore.controller;
 
 import com.ragcore.service.RagOrchestrator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * REST controller for the RAG Core Engine.
@@ -18,12 +21,27 @@ import java.util.List;
 public class RagController {
 
   private final RagOrchestrator orchestrator;
+  private final Executor sseExecutor;
 
-  public RagController(RagOrchestrator orchestrator) {
+  public RagController(RagOrchestrator orchestrator,
+                       @Qualifier("sseExecutor") Executor sseExecutor) {
     this.orchestrator = orchestrator;
+    this.sseExecutor  = sseExecutor;
   }
 
   // ─── POST /api/upload ───────────────────────────────────────────
+  //
+  // Files are additive: each upload appends to the existing vector store.
+  // To start fresh before uploading, call DELETE /api/reset first.
+  //
+  // Example — index two files for cross-document search:
+  //   POST /api/upload?domain=film+script   (file: screenplay.pdf)
+  //   POST /api/upload?domain=film+script   (file: subtitles.srt)
+  //   POST /api/query   { question: "..." }   ← searches across both files
+  //
+  // Example — switch to a new corpus:
+  //   DELETE /api/reset
+  //   POST /api/upload?domain=rental+law    (file: lease.pdf)
   @PostMapping("/upload")
   public ResponseEntity<String> upload(
       @RequestParam("file") MultipartFile file,
@@ -34,9 +52,11 @@ public class RagController {
     }
     try {
       orchestrator.index(file, domain);
-      return ResponseEntity.ok("File uploaded and indexed: "
-          + file.getOriginalFilename()
-          + " (domain: " + domain + ")");
+      return ResponseEntity.ok(
+          "Indexed: " + file.getOriginalFilename()
+          + " | domain: " + domain
+          + " | total chunks in store: " + orchestrator.getChunkCount()
+          + " | to clear all documents call DELETE /api/reset");
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     } catch (Exception e) {
@@ -83,7 +103,7 @@ public class RagController {
       return emitter;
     }
 
-    new Thread(() -> {
+    sseExecutor.execute(() -> {
       try {
         orchestrator.queryStream(question, token -> {
           try {
@@ -104,7 +124,7 @@ public class RagController {
       } catch (Exception e) {
         emitter.completeWithError(e);
       }
-    }).start();
+    });
 
     return emitter;
   }

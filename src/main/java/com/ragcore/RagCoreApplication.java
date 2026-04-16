@@ -2,6 +2,7 @@ package com.ragcore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Entry point for the RAG Core Engine application.
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * package and its sub-packages.</p>
  */
 @SpringBootApplication
+@EnableAsync
 public class RagCoreApplication {
 
   /**

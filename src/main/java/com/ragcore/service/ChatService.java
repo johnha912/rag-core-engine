@@ -57,9 +57,20 @@ public class ChatService {
 
   public ChatResponse ask(String question, List<Chunk> chunks, String conversationId)
       throws Exception {
+    return ask(question, chunks, conversationId, null);
+  }
+
+  /**
+   * Answers a question using the given role instruction as the system prompt.
+   *
+   * @param roleInstruction the domain-specific role description; if null or blank,
+   *                        a generic fallback is used
+   */
+  public ChatResponse ask(String question, List<Chunk> chunks, String conversationId,
+      String roleInstruction) throws Exception {
     validateInputs(question, chunks);
 
-    String systemPrompt = buildSystemPrompt(chunks);
+    String systemPrompt = buildSystemPrompt(roleInstruction, chunks);
     JsonArray messages = new JsonArray();
     messages.add(buildMessage("system", systemPrompt));
 
@@ -86,9 +97,14 @@ public class ChatService {
 
   public void askStream(String question, List<Chunk> chunks,
       java.util.function.Consumer<String> onToken) throws Exception {
+    askStream(question, chunks, onToken, null);
+  }
+
+  public void askStream(String question, List<Chunk> chunks,
+      java.util.function.Consumer<String> onToken, String roleInstruction) throws Exception {
     validateInputs(question, chunks);
 
-    String systemPrompt = buildSystemPrompt(chunks);
+    String systemPrompt = buildSystemPrompt(roleInstruction, chunks);
     JsonArray messages = new JsonArray();
     messages.add(buildMessage("system", systemPrompt));
     messages.add(buildMessage("user", question));
@@ -157,19 +173,28 @@ public class ChatService {
     return sb.toString();
   }
 
-  private String buildSystemPrompt(List<Chunk> chunks) {
-    return "You are an expert legal and document analysis assistant with deep knowledge "
-        + "of California tenant rights law, including California Civil Code Section 1941 "
-        + "(implied warranty of habitability), constructive eviction, quiet enjoyment rights, "
-        + "and tenant remedies. "
-        + "Answer the user's question based primarily on the provided context. "
-        + "When the context supports it, enrich your answer with relevant legal concepts "
-        + "such as 'constructive eviction', 'implied warranty of habitability', "
-        + "'California Civil Code Section 1941', or other applicable laws. "
-        + "If the context does not contain enough information, say so clearly. "
-        + "Always cite which source and page your answer comes from. "
-        + "Structure your answer clearly with numbered steps when giving advice.\n\n"
-        + "Context:\n" + buildContext(chunks);
+  /**
+   * Builds the full system prompt from an external role instruction and the retrieved chunks.
+   *
+   * <p>The {@code roleInstruction} should describe the assistant's persona and domain expertise.
+   * If null or blank, a generic fallback is used so the method is safe to call without one.</p>
+   *
+   * <p>Context (source + content of each chunk) is always appended at the end regardless of
+   * the role instruction, so callers never need to include it themselves.</p>
+   *
+   * @param roleInstruction domain-specific persona text; null falls back to a generic prompt
+   * @param chunks          the retrieved document chunks to include as context
+   * @return the complete system prompt string ready to send to the LLM
+   */
+  private String buildSystemPrompt(String roleInstruction, List<Chunk> chunks) {
+    String role = (roleInstruction != null && !roleInstruction.isBlank())
+        ? roleInstruction
+        : "You are a helpful document analysis assistant. "
+            + "Answer the user's question based on the provided context. "
+            + "If the context does not contain enough information, say so clearly. "
+            + "Always cite which source and page your answer comes from. "
+            + "Structure your answer clearly with numbered steps when giving advice.";
+    return role + "\n\nContext:\n" + buildContext(chunks);
   }
 
   private JsonObject buildMessage(String role, String content) {
