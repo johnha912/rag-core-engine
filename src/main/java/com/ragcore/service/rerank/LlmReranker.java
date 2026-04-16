@@ -1,4 +1,4 @@
-package com.ragcore.service;
+package com.ragcore.service.rerank;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -7,9 +7,10 @@ import com.ragcore.model.Chunk;
 import okhttp3.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 /**
  * Re-ranks candidate chunks using a single LLM call.
  *
@@ -148,7 +149,7 @@ public class LlmReranker implements Reranker {
    * Returns {@code null} if parsing fails or any index is out of range —
    * the caller falls back to the original order in that case.</p>
    */
-  List<Integer> parseIndices(String content, int chunkCount) {
+  public List<Integer> parseIndices(String content, int chunkCount) {
     try {
       int start = content.indexOf('[');
       int end   = content.lastIndexOf(']');
@@ -183,8 +184,10 @@ public class LlmReranker implements Reranker {
     for (int idx : rankedIndices) {
       result.add(chunks.get(idx));
     }
+    Set<Integer> seen = new HashSet<>(rankedIndices);
+
     for (int i = 0; i < chunks.size(); i++) {
-      if (!rankedIndices.contains(i)) {
+      if (!seen.contains(i)) {
         result.add(chunks.get(i));
       }
     }

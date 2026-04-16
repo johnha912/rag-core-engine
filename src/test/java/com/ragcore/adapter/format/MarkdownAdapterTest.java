@@ -1,5 +1,7 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.format;
 
+import com.ragcore.adapter.domain.general.TextCleaner;
+import com.ragcore.adapter.domain.general.TextSplitter;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,12 +70,10 @@ class MarkdownAdapterTest {
 
     assertFalse(chunks.isEmpty());
 
-    // Verify heading metadata
     boolean hasInstallation = chunks.stream()
         .anyMatch(c -> "Installation".equals(c.getMetadata().get("heading")));
     assertTrue(hasInstallation);
 
-    // Verify heading level metadata
     boolean hasLevel2 = chunks.stream()
         .anyMatch(c -> "2".equals(c.getMetadata().get("headingLevel")));
     assertTrue(hasLevel2);

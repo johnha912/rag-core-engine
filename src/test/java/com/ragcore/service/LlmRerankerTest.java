@@ -1,6 +1,7 @@
 package com.ragcore.service;
 
 import com.ragcore.model.Chunk;
+import com.ragcore.service.rerank.LlmReranker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

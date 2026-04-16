@@ -1,5 +1,6 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.general.TextSplitter;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

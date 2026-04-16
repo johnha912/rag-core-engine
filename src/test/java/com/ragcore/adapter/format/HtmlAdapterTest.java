@@ -1,5 +1,7 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.format;
 
+import com.ragcore.adapter.domain.general.TextCleaner;
+import com.ragcore.adapter.domain.general.TextSplitter;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for {@link HtmlAdapter}.
- *
  */
 class HtmlAdapterTest {
 
@@ -69,7 +70,6 @@ class HtmlAdapterTest {
     List<Chunk> chunks = adapter.parse(is, "guide.html");
 
     assertFalse(chunks.isEmpty());
-    // Verify heading metadata is present
     boolean hasCreateTablesHeading = chunks.stream()
         .anyMatch(c -> "Creating Tables".equals(c.getMetadata().get("heading")));
     assertTrue(hasCreateTablesHeading);

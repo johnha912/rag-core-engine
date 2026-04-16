@@ -1,5 +1,6 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.general;
 
+import com.ragcore.adapter.BaseDocumentAdapter;
 import com.ragcore.model.Chunk;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -8,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class BasePdfAdapter extends BaseDocumentAdapter {
+public class GeneralAdapter extends BaseDocumentAdapter {
 
   private final TextCleaner cleaner;
   private final TextSplitter splitter;
 
-  public BasePdfAdapter(TextCleaner cleaner, TextSplitter splitter) {
+  public GeneralAdapter(TextCleaner cleaner, TextSplitter splitter) {
     if (cleaner == null) throw new IllegalArgumentException("TextCleaner cannot be null.");
     if (splitter == null) throw new IllegalArgumentException("TextSplitter cannot be null.");
     this.cleaner = cleaner;
@@ -43,5 +44,5 @@ public class BasePdfAdapter extends BaseDocumentAdapter {
   }
 
   @Override
-  public String getDomainName() { return "PDF/TXT"; }
+  public String getDomainName() { return "General"; }
 }

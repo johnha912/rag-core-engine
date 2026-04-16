@@ -1,4 +1,4 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.general;
 
 import java.util.ArrayList;
 import java.util.List;

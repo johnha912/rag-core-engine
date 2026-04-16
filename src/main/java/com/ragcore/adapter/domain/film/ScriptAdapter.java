@@ -1,5 +1,6 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.film;
 
+import com.ragcore.adapter.BaseDocumentAdapter;
 import com.ragcore.model.Chunk;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ public class ScriptAdapter extends BaseDocumentAdapter {
   private final ScriptSplitter splitter;
 
   public ScriptAdapter(ScriptTextCleaner cleaner, ScriptSplitter splitter) {
+    if (cleaner == null) throw new IllegalArgumentException("ScriptTextCleaner cannot be null.");
+    if (splitter == null) throw new IllegalArgumentException("ScriptSplitter cannot be null.");
     this.cleaner = cleaner;
     this.splitter = splitter;
   }

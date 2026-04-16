@@ -1,5 +1,6 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.film.StoryboardAdapter;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

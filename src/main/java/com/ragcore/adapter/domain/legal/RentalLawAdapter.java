@@ -1,5 +1,6 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.legal;
 
+import com.ragcore.adapter.BaseDocumentAdapter;
 import com.ragcore.model.Chunk;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ public class RentalLawAdapter extends BaseDocumentAdapter {
   private final LegalSplitter splitter;
 
   public RentalLawAdapter(LegalTextCleaner cleaner, LegalSplitter splitter) {
+    if (cleaner == null) throw new IllegalArgumentException("LegalTextCleaner cannot be null.");
+    if (splitter == null) throw new IllegalArgumentException("LegalSplitter cannot be null.");
     this.cleaner = cleaner;
     this.splitter = splitter;
   }

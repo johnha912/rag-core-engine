@@ -1,6 +1,7 @@
-package com.ragcore.service;
+package com.ragcore.service.vector;
 
 import com.ragcore.model.Chunk;
+import com.ragcore.service.EmbeddingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -91,7 +92,7 @@ public class InMemoryVectorStore implements VectorStore {
    * @return cosine similarity in [-1, 1]
    * @throws IllegalArgumentException if the vectors have different lengths
    */
-  double cosineSimilarity(float[] a, float[] b) {
+  public double cosineSimilarity(float[] a, float[] b) {
     if (a.length != b.length) {
       throw new IllegalArgumentException(
           "Vectors must have the same dimension: " + a.length + " vs " + b.length);

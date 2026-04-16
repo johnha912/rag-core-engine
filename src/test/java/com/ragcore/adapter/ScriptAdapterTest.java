@@ -1,5 +1,8 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.film.ScriptAdapter;
+import com.ragcore.adapter.domain.film.ScriptSplitter;
+import com.ragcore.adapter.domain.film.ScriptTextCleaner;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

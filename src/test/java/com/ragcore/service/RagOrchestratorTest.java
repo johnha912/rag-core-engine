@@ -2,6 +2,8 @@ package com.ragcore.service;
 
 import com.ragcore.adapter.DocumentAdapter;
 import com.ragcore.model.Chunk;
+import com.ragcore.service.rerank.Reranker;
+import com.ragcore.service.vector.VectorStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;

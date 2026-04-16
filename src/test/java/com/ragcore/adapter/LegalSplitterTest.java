@@ -1,5 +1,6 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.legal.LegalSplitter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

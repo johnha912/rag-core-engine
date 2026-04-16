@@ -1,6 +1,5 @@
-package com.ragcore.adapter.domain;
+package com.ragcore.adapter;
 
-import com.ragcore.adapter.DocumentAdapter;
 import com.ragcore.model.Chunk;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;

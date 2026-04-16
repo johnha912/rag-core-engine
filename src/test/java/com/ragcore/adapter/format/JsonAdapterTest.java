@@ -1,5 +1,7 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.format;
 
+import com.ragcore.adapter.domain.general.TextCleaner;
+import com.ragcore.adapter.domain.general.TextSplitter;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,6 @@ class JsonAdapterTest {
 
   @BeforeEach
   void setUp() {
-    // Use a large chunk size with no overlap so each small test element stays as one chunk.
     adapter = new JsonAdapter(new TextCleaner(), new TextSplitter(10000, 0));
   }
 

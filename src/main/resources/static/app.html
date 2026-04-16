@@ -62,7 +62,10 @@
       <option value="general">General</option>
       <option value="film_script">Film Script</option>
       <option value="rental_law">Rental Law</option>
-      <option value="markdown">Database / Technical</option>
+      <option value="markdown">Markdown</option>
+      <option value="html">HTML</option>
+      <option value="csv">CSV</option>
+      <option value="json">JSON</option>
     </select>
   </div>
 
@@ -109,6 +112,7 @@
     document.getElementById('fileItems').innerHTML =
         files.map(f => `<span class="tag">📄 ${f.name}</span>`).join('');
     document.getElementById('fileList').style.display = 'block';
+    uploadFiles();
   });
 
   // ── Upload files ──────────────────────────────────────────

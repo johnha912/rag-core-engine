@@ -1,8 +1,9 @@
-package com.ragcore.service;
+package com.ragcore.service.vector;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ragcore.model.Chunk;
+import com.ragcore.service.EmbeddingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -167,7 +168,7 @@ public class SQLiteVectorStore implements VectorStore {
   // ── Serialization ──────────────────────────────────────────────────────────
 
   /** Converts a float[] to a byte[] (4 bytes per float, big-endian). */
-  static byte[] floatsToBytes(float[] floats) {
+  public static byte[] floatsToBytes(float[] floats) {
     ByteBuffer buf = ByteBuffer.allocate(floats.length * 4);
     for (float f : floats) {
       buf.putFloat(f);
@@ -176,7 +177,7 @@ public class SQLiteVectorStore implements VectorStore {
   }
 
   /** Converts a byte[] back to float[] (inverse of {@link #floatsToBytes}). */
-  static float[] bytesToFloats(byte[] bytes) {
+  public static float[] bytesToFloats(byte[] bytes) {
     ByteBuffer buf = ByteBuffer.wrap(bytes);
     float[] floats = new float[bytes.length / 4];
     for (int i = 0; i < floats.length; i++) {
@@ -191,7 +192,7 @@ public class SQLiteVectorStore implements VectorStore {
    * Computes cosine similarity between two float vectors.
    * Returns 0.0 for zero vectors to prevent division by zero.
    */
-  double cosineSimilarity(float[] a, float[] b) {
+  public double cosineSimilarity(float[] a, float[] b) {
     if (a.length != b.length) {
       throw new IllegalArgumentException(
           "Vectors must have the same dimension: " + a.length + " vs " + b.length);

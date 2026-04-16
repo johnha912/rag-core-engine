@@ -1,4 +1,4 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.legal;
 
 import org.springframework.stereotype.Component;
 

@@ -19,7 +19,6 @@ public class RagController {
 
   private final RagOrchestrator orchestrator;
 
-  @Autowired
   public RagController(RagOrchestrator orchestrator) {
     this.orchestrator = orchestrator;
   }
@@ -86,27 +85,19 @@ public class RagController {
 
     new Thread(() -> {
       try {
-        List<com.ragcore.model.Chunk> relevant = orchestrator.searchOnly(question);
-
-        if (relevant.isEmpty()) {
-          // 与 token 格式保持一致，前端 JSON.parse() 才不会报错
-          emitter.send(SseEmitter.event()
-              .data("\"No relevant content found. Please upload a document first.\""));
-          emitter.send(SseEmitter.event().data("[DONE]"));
-          emitter.complete();
-          return;
-        }
-
-        orchestrator.getChatService().askStream(question, relevant, token -> {
+        orchestrator.queryStream(question, token -> {
           try {
-            // JSON 包一层，防止 SSE 协议剥离 token 前导空格
-            emitter.send(SseEmitter.event()
-                .data("\"" + token.replace("\\", "\\\\").replace("\"", "\\\"") + "\""));
+            if (token.equals("[NO_CONTENT]")) {
+              emitter.send(SseEmitter.event()
+                  .data("\"No relevant content found. Please upload a document first.\""));
+            } else {
+              emitter.send(SseEmitter.event()
+                  .data("\"" + token.replace("\\", "\\\\").replace("\"", "\\\"") + "\""));
+            }
           } catch (Exception e) {
             emitter.completeWithError(e);
           }
         });
-
         emitter.send(SseEmitter.event().data("[DONE]"));
         emitter.complete();
 

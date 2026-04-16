@@ -1,5 +1,6 @@
-package com.ragcore.adapter;
+package com.ragcore.adapter.domain.film;
 
+import com.ragcore.adapter.DocumentAdapter;
 import com.ragcore.model.Chunk;
 import org.springframework.stereotype.Component;
 
@@ -93,4 +94,5 @@ public class StoryboardAdapter implements DocumentAdapter {
   public String getDomainName() {
     return "Storyboard";
   }
+
 }

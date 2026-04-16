@@ -5,6 +5,7 @@ import com.ragcore.model.EvalQuestion;
 import com.ragcore.model.EvalReport;
 import com.ragcore.model.EvalResult;
 
+import com.ragcore.service.vector.VectorStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

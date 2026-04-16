@@ -1,6 +1,7 @@
-package com.ragcore.service;
+package com.ragcore.service.vector;
 
 import com.ragcore.model.Chunk;
+import com.ragcore.service.EmbeddingService;
 import java.util.List;
 
 /**

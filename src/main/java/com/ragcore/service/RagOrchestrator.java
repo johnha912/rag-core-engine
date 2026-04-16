@@ -2,6 +2,8 @@ package com.ragcore.service;
 
 import com.ragcore.adapter.DocumentAdapter;
 import com.ragcore.model.Chunk;
+import com.ragcore.service.rerank.Reranker;
+import com.ragcore.service.vector.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -165,8 +167,17 @@ public class RagOrchestrator {
     return vectorStore.search(question, 10);
   }
 
-  public ChatService getChatService() {
-    return chatService;
+  public void queryStream(String question, java.util.function.Consumer<String> tokenCallback) {
+    List<Chunk> relevant = searchOnly(question);
+    if (relevant.isEmpty()) {
+      tokenCallback.accept("[NO_CONTENT]");
+      return;
+    }
+    try {
+      chatService.askStream(question, relevant, tokenCallback);
+    } catch (Exception e) {
+      tokenCallback.accept("[NO_CONTENT]");
+    }
   }
 }
 

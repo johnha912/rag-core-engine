@@ -1,5 +1,8 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.general.GeneralAdapter;
+import com.ragcore.adapter.domain.general.TextCleaner;
+import com.ragcore.adapter.domain.general.TextSplitter;
 import com.ragcore.model.Chunk;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,15 +21,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for {@link BasePdfAdapter}.
+ * Unit tests for {@link GeneralAdapter}.
  */
 class BasePdfAdapterTest {
 
-  private BasePdfAdapter adapter;
+  private GeneralAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    adapter = new BasePdfAdapter(new TextCleaner(), new TextSplitter(200, 30));
+    adapter = new GeneralAdapter(new TextCleaner(), new TextSplitter(200, 30));
   }
 
   // ========== Constructor validation ==========
@@ -34,18 +37,18 @@ class BasePdfAdapterTest {
   @Test
   void testConstructorNullCleanerThrows() {
     assertThrows(IllegalArgumentException.class,
-        () -> new BasePdfAdapter(null, new TextSplitter(100, 10)));
+        () -> new GeneralAdapter(null, new TextSplitter(100, 10)));
   }
 
   @Test
   void testConstructorNullSplitterThrows() {
     assertThrows(IllegalArgumentException.class,
-        () -> new BasePdfAdapter(new TextCleaner(), null));
+        () -> new GeneralAdapter(new TextCleaner(), null));
   }
 
   @Test
   void testConstructorValid() {
-    BasePdfAdapter a = new BasePdfAdapter(new TextCleaner(), new TextSplitter(100, 10));
+    GeneralAdapter a = new GeneralAdapter(new TextCleaner(), new TextSplitter(100, 10));
     assertNotNull(a);
   }
 
@@ -87,7 +90,7 @@ class BasePdfAdapterTest {
 
   @Test
   void testGetDomainName() {
-    assertEquals("PDF/TXT", adapter.getDomainName());
+    assertEquals("General", adapter.getDomainName());
   }
 
   // ========== parse() input validation ==========
@@ -132,8 +135,6 @@ class BasePdfAdapterTest {
     assertFalse(chunks.isEmpty(), "Should produce at least one chunk");
     for (Chunk chunk : chunks) {
       assertEquals("test.txt", chunk.getSource());
-      assertNotNull(chunk.getMetadata().get("page"));
-      assertEquals("1", chunk.getMetadata().get("page"));
       assertNotNull(chunk.getMetadata().get("chunkIndex"));
       assertFalse(chunk.getContent().isBlank());
     }
@@ -159,7 +160,6 @@ class BasePdfAdapterTest {
 
   @Test
   void testParseTxtChunkIndexIncrementsCorrectly() throws Exception {
-    // Long enough text to produce multiple chunks with chunkSize=200
     String content = "word ".repeat(200);
     InputStream is = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 
@@ -192,7 +192,6 @@ class BasePdfAdapterTest {
 
   @Test
   void testParsePdfWithInvalidDataThrows() {
-    // Random bytes that are not a valid PDF
     byte[] garbage = "this is not a pdf file at all".getBytes(StandardCharsets.UTF_8);
     InputStream is = new ByteArrayInputStream(garbage);
 

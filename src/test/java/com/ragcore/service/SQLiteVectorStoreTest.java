@@ -1,6 +1,7 @@
 package com.ragcore.service;
 
 import com.ragcore.model.Chunk;
+import com.ragcore.service.vector.SQLiteVectorStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

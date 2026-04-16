@@ -1,4 +1,4 @@
-package com.ragcore.service;
+package com.ragcore.service.rerank;
 
 import com.ragcore.model.Chunk;
 import java.util.List;

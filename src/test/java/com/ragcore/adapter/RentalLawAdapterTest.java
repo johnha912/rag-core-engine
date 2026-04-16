@@ -1,5 +1,8 @@
 package com.ragcore.adapter;
 
+import com.ragcore.adapter.domain.legal.RentalLawAdapter;
+import com.ragcore.adapter.domain.legal.LegalSplitter;
+import com.ragcore.adapter.domain.legal.LegalTextCleaner;
 import com.ragcore.model.Chunk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,7 +81,7 @@ class RentalLawAdapterTest {
   void parse_unsupportedFormat_throwsException() {
     InputStream is = new ByteArrayInputStream("text".getBytes(StandardCharsets.UTF_8));
     assertThrows(IllegalArgumentException.class,
-        () -> adapter.parse(is, "lease.txt"));
+        () -> adapter.parse(is, "lease.xyz"));
   }
 
   @Test
