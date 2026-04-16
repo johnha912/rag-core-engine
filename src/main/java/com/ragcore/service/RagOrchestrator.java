@@ -63,14 +63,19 @@ public class RagOrchestrator {
       DocumentAdapter adapter;
 
       if (domain == null || domain.isBlank() || domain.equals("general")) {
-        // general 模式：用原来的 supports() 自动选择
+        adapter = adapters.stream()
+            .filter(a -> a.supports(fileName))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                "No adapter found for file: " + fileName));
+      } else if (domain.equals("technical")) {
+        // Technical domain: route by file extension
         adapter = adapters.stream()
             .filter(a -> a.supports(fileName))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException(
                 "No adapter found for file: " + fileName));
       } else {
-        // 指定 domain：按 getDomainName() 精准匹配
         adapter = adapters.stream()
             .filter(a -> a.getDomainName().equalsIgnoreCase(domain.replace("_", " ")))
             .findFirst()

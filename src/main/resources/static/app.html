@@ -6,41 +6,54 @@
   <title>Omni RAG — App</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#111;min-height:100vh}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f9;color:#111;min-height:100vh}
     nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:60px;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:10}
     .logo{font-size:15px;font-weight:600;letter-spacing:-.3px;text-decoration:none;color:#111}
     .logo span{color:#888;font-weight:400}
     .nav-btn{font-size:13px;background:#fff;color:#111;border:1px solid #e8e8e8;padding:8px 18px;border-radius:6px;cursor:pointer;font-weight:500}
     .nav-btn:hover{background:#f5f5f5}
-    .main{max-width:680px;margin:0 auto;padding:60px 24px}
-    .page-title{font-size:28px;font-weight:600;letter-spacing:-.5px;margin-bottom:6px}
-    .page-sub{font-size:14px;color:#aaa;margin-bottom:48px}
-    .section-label{font-size:11px;font-weight:600;letter-spacing:.8px;color:#bbb;text-transform:uppercase;margin-bottom:12px}
-    .input-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-    input[type="text"]{flex:1;border:1px solid #e8e8e8;border-radius:8px;padding:11px 14px;font-size:14px;color:#111;background:#fff;outline:none;transition:border .15s}
-    input[type="text"]:focus{border-color:#999}
-    select{border:1px solid #e8e8e8;border-radius:8px;padding:11px 36px 11px 14px;font-size:14px;color:#111;background:#fff;outline:none}
+    .main{max-width:680px;margin:0 auto;padding:48px 24px}
+    .page-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+    .page-sub{font-size:14px;color:#aaa;margin-bottom:36px}
+    .card{background:#fff;border:1px solid #efefef;border-radius:12px;padding:20px 24px;margin-bottom:10px}
+    .card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .step-num{width:22px;height:22px;border-radius:50%;background:#f3f3f3;border:1px solid #e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#888;flex-shrink:0}
+    .step-num.active{background:#111;border-color:#111;color:#fff}
+    .step-title{font-size:13px;font-weight:600;color:#111}
+    .step-sub{font-size:12px;color:#bbb;margin-left:auto}
+    .drop-zone{border:1.5px dashed #e0e0e0;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s}
+    .drop-zone:hover{border-color:#bbb;background:#fafafa}
+    .drop-zone-icon{width:32px;height:32px;margin:0 auto 10px;background:#f3f3f3;border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .drop-zone p{font-size:13px;color:#888;margin:0 0 2px}
+    .drop-zone span{font-size:11px;color:#ccc}
+    select{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:11px 14px;font-size:14px;color:#111;background:#fff;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+    select:focus{border-color:#999}
     input[type="file"]{display:none}
-    .file-label{flex:1;border:1px dashed #e0e0e0;border-radius:8px;padding:11px 14px;cursor:pointer;color:#aaa;font-size:14px;text-align:center;transition:all .15s}
-    .file-label:hover{border-color:#bbb;color:#666}
-    .btn{background:#111;color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer}
-    .btn:hover{background:#333}
-    .btn-danger{background:#fff;color:#c0392b;border:1px solid #fdd;border-radius:8px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer}
-    .btn-danger:hover{background:#fff5f5}
-    .hint{font-size:12px;color:#bbb;margin-top:6px;min-height:16px}
+    .file-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#555;background:#f5f5f5;border-radius:4px;padding:4px 10px}
+    .btn-confirm{width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
+    .btn-confirm:hover{background:#333}
+    .btn-confirm:disabled{background:#e0e0e0;color:#aaa;cursor:not-allowed}
+    .btn-cancel{width:100%;background:#fff;color:#c0392b;border:1px solid #fdd;border-radius:8px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
+    .btn-cancel:hover{background:#fff5f5}
+    .btn-reset{background:#fff;color:#888;border:1px solid #e8e8e8;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer}
+    .btn-reset:hover{background:#f5f5f5}
+    .hint{font-size:12px;color:#bbb;margin-top:10px;min-height:16px}
     .hint.ok{color:#16a34a}
     .hint.err{color:#c0392b}
-    .sep{height:1px;background:#f5f5f5;margin:36px 0}
+    .sep{height:1px;background:#f0f0f0;margin:28px 0}
+    .section-label{font-size:11px;font-weight:600;letter-spacing:.8px;color:#ccc;text-transform:uppercase;margin-bottom:12px}
+    .input-row{display:flex;gap:8px;margin-bottom:8px}
+    input[type="text"]{flex:1;border:1px solid #e8e8e8;border-radius:8px;padding:11px 14px;font-size:14px;color:#111;background:#fff;outline:none}
+    input[type="text"]:focus{border-color:#999}
+    .btn-ask{background:#111;color:#fff;border:none;border-radius:8px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer}
+    .btn-ask:hover{background:#333}
     .answer-wrap{border:1px solid #f0f0f0;border-radius:10px;overflow:hidden}
     .answer-box{padding:20px;min-height:120px;font-size:14px;line-height:1.8;color:#333;background:#fafafa;white-space:pre-wrap;word-break:break-word}
-    /* Question shown inside answer box */
     .answer-question{font-size:13px;font-weight:600;color:#111;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ebebeb}
-    .answer-text{color:#333}
-    .sources-row{padding:10px 20px;border-top:1px solid #f0f0f0;display:flex;flex-wrap:wrap;gap:6px;background:#fff}
-    .tag{font-size:12px;color:#888;background:#f5f5f5;border-radius:4px;padding:2px 8px}
     .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#888;background:#f9f9f9;border:1px solid #f0f0f0;border-radius:6px;padding:6px 12px}
     .spinner{display:none;width:14px;height:14px;border:2px solid #e0e0e0;border-top-color:#111;border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;vertical-align:middle}
     @keyframes spin{to{transform:rotate(360deg)}}
+    .card.disabled{opacity:0.45;pointer-events:none}
   </style>
 </head>
 <body>
@@ -53,32 +66,60 @@
   <div class="page-title">Document Q&A</div>
   <div class="page-sub">Upload a document, then ask anything about it.</div>
 
-  <!-- UPLOAD -->
-  <div class="section-label">Upload</div>
-  <div class="input-row">
-    <label class="file-label" for="fileInput" id="fileLabel">Choose files...</label>
+  <!-- STEP 1: Choose file -->
+  <div class="card" id="card1">
+    <div class="card-header">
+      <div class="step-num active" id="num1">1</div>
+      <span class="step-title">Choose files</span>
+    </div>
+    <label for="fileInput">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p id="dropLabel">Drop files here or <u>browse</u></p>
+        <span>PDF · DOCX · MD · SRT · HTML · CSV · JSON</span>
+      </div>
+    </label>
     <input type="file" id="fileInput" multiple accept=".pdf,.docx,.md,.srt,.vtt,.txt,.html,.csv,.json,.fdx"/>
+    <div id="fileList" style="display:none;margin-top:10px;display:none">
+      <div id="fileItems" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Select domain -->
+  <div class="card disabled" id="card2">
+    <div class="card-header">
+      <div class="step-num" id="num2">2</div>
+      <span class="step-title">Select document type</span>
+    </div>
     <select id="domainSelect">
-      <option value="general">General</option>
-      <option value="film_script">Film Script</option>
-      <option value="rental_law">Rental Law</option>
-      <option value="markdown">Markdown</option>
-      <option value="html">HTML</option>
-      <option value="csv">CSV</option>
-      <option value="json">JSON</option>
+      <option value="general">📄 General</option>
+      <option value="film_script">🎬 Film</option>
+      <option value="rental_law">⚖️ Law</option>
+      <option value="markdown">💻 Technical</option>
     </select>
   </div>
 
-  <div id="fileList" style="margin:8px 0;display:none">
-    <div style="font-size:11px;color:#bbb;margin-bottom:6px">SELECTED FILES</div>
-    <div id="fileItems" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  <!-- STEP 3: Confirm -->
+  <div class="card disabled" id="card3">
+    <div class="card-header">
+      <div class="step-num" id="num3">3</div>
+      <span class="step-title">Confirm & upload</span>
+      <span class="step-sub" id="step3sub">Select files first</span>
+    </div>
+    <button class="btn-confirm" id="confirmBtn" onclick="uploadFiles()" disabled>
+      Upload & Index <span class="spinner" id="uploadSpinner"></span>
+    </button>
+    <button class="btn-cancel" id="cancelBtn" onclick="cancelUpload()" style="display:none">Cancel</button>
   </div>
 
-  <div class="input-row">
-    <button class="btn" onclick="uploadFiles()">Upload & Index<span class="spinner" id="uploadSpinner"></span></button>
-    <button class="btn-danger" onclick="resetStore()">Reset</button>
+  <div style="display:flex;justify-content:flex-end;margin-top:8px">
+    <button class="btn-reset" onclick="resetStore()">Reset index</button>
   </div>
-  <div class="hint" id="uploadStatus">No files uploaded yet.</div>
+  <div class="hint" id="uploadStatus"></div>
 
   <div class="sep"></div>
 
@@ -86,13 +127,12 @@
   <div class="section-label">Ask</div>
   <div class="input-row">
     <input type="text" id="questionInput" placeholder="e.g. What happens in scene 3?" onkeydown="if(event.key==='Enter') askQuestion()"/>
-    <button class="btn" onclick="askQuestion()">Ask<span class="spinner" id="querySpinner"></span></button>
+    <button class="btn-ask" onclick="askQuestion()">Ask<span class="spinner" id="querySpinner"></span></button>
   </div>
   <div class="answer-wrap">
     <div class="answer-box" id="answerBox">
       <span style="color:#ccc">Your answer will appear here.</span>
     </div>
-    <div class="sources-row" id="sourcesBox" style="display:none"></div>
   </div>
 
   <div class="sep"></div>
@@ -103,24 +143,40 @@
 </div>
 
 <script>
-  // ── File selection ────────────────────────────────────────
   document.getElementById('fileInput').addEventListener('change', e => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    document.getElementById('fileLabel').textContent =
-        files.length === 1 ? files[0].name : `${files.length} files selected`;
+
+    document.getElementById('dropLabel').innerHTML =
+        files.length === 1 ? `📄 ${files[0].name}` : `📄 ${files.length} files selected`;
     document.getElementById('fileItems').innerHTML =
-        files.map(f => `<span class="tag">📄 ${f.name}</span>`).join('');
+        files.map(f => `<span class="file-tag">📄 ${f.name}</span>`).join('');
     document.getElementById('fileList').style.display = 'block';
-    uploadFiles();
+
+    document.getElementById('card2').classList.remove('disabled');
+    document.getElementById('card3').classList.remove('disabled');
+    document.getElementById('num2').classList.add('active');
+    document.getElementById('num3').classList.add('active');
+    document.getElementById('confirmBtn').disabled = false;
+    document.getElementById('cancelBtn').style.display = 'block';
+
+    const domainLabel = document.getElementById('domainSelect').selectedOptions[0].text;
+    document.getElementById('step3sub').textContent = `Ready as "${domainLabel}"`;
+    setHint('');
   });
 
-  // ── Upload files ──────────────────────────────────────────
+  document.getElementById('domainSelect').addEventListener('change', () => {
+    const domainLabel = document.getElementById('domainSelect').selectedOptions[0].text;
+    document.getElementById('step3sub').textContent = `Ready as "${domainLabel}"`;
+  });
+
   async function uploadFiles() {
     const files = Array.from(document.getElementById('fileInput').files);
     const domain = document.getElementById('domainSelect').value;
-    if (!files.length) { setHint('Please select at least one file.', ''); return; }
+    if (!files.length) return;
 
+    document.getElementById('confirmBtn').disabled = true;
+    document.getElementById('spinner', 'uploadSpinner');
     showSpinner('uploadSpinner');
     let ok = 0, errs = [];
 
@@ -136,78 +192,76 @@
     }
 
     hideSpinner('uploadSpinner');
+    document.getElementById('cancelBtn').style.display = 'none';
+    document.getElementById('confirmBtn').disabled = false;
     errs.length === 0
         ? setHint(`✅ All ${ok} files uploaded and indexed!`, 'ok')
         : setHint(`⚠️ ${ok} succeeded, ${errs.length} failed: ${errs[0]}`, 'err');
     checkStatus();
   }
 
-  // ── Ask question (SSE streaming) ──────────────────────────
+  function cancelUpload() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('dropLabel').innerHTML = 'Drop files here or <u>browse</u>';
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('card2').classList.add('disabled');
+    document.getElementById('card3').classList.add('disabled');
+    document.getElementById('num2').classList.remove('active');
+    document.getElementById('num3').classList.remove('active');
+    document.getElementById('confirmBtn').disabled = true;
+    document.getElementById('cancelBtn').style.display = 'none';
+    document.getElementById('step3sub').textContent = 'Select files first';
+    setHint('');
+  }
+
   async function askQuestion() {
     const q = document.getElementById('questionInput').value.trim();
     if (!q) return;
-
     showSpinner('querySpinner');
     document.getElementById('questionInput').value = '';
-    document.getElementById('sourcesBox').style.display = 'none';
-
-    // Show the question first, then a placeholder for the streaming answer
     const answerBox = document.getElementById('answerBox');
     answerBox.innerHTML =
         `<div class="answer-question">Q: ${q}</div>` +
-        `<div class="answer-text" id="answerText"></div>`;
+        `<div id="answerText"></div>`;
     const answerText = document.getElementById('answerText');
-
     const evtSource = new EventSource(`/api/stream?question=${encodeURIComponent(q)}`);
-
     evtSource.onmessage = e => {
-      if (e.data === '[DONE]') {
-        evtSource.close();
-        hideSpinner('querySpinner');
-        return;
-      }
-      // Tokens are JSON-encoded by the backend to preserve leading spaces.
+      if (e.data === '[DONE]') { evtSource.close(); hideSpinner('querySpinner'); return; }
       answerText.textContent += JSON.parse(e.data);
     };
-
-    evtSource.onerror = () => {
-      evtSource.close();
-      hideSpinner('querySpinner');
-    };
+    evtSource.onerror = () => { evtSource.close(); hideSpinner('querySpinner'); };
   }
 
-  // ── Reset vector store ────────────────────────────────────
   async function resetStore() {
     if (!confirm('Clear all indexed documents?')) return;
     try {
       const res = await fetch('/api/reset', { method: 'DELETE' });
       setHint('🗑️ ' + await res.text(), '');
+      cancelUpload();
       checkStatus();
     } catch (e) { setHint('❌ ' + e.message, 'err'); }
   }
 
-  // ── Poll backend status ───────────────────────────────────
   async function checkStatus() {
     try {
       const text = await (await fetch('/api/status')).text();
       const chunks = (text.match(/Chunks stored: (\d+)/) || [, '0'])[1];
       const el = document.getElementById('statusBox');
       if (text.includes('Indexing: true')) {
-        el.textContent = 'Indexing...'; el.style.color = '#b45309';
+        el.innerHTML = '⏳ Indexing...'; el.style.color = '#b45309';
         setTimeout(checkStatus, 1000);
       } else if (chunks === '0') {
-        el.textContent = 'No documents indexed'; el.style.color = '#bbb';
+        el.innerHTML = 'No documents indexed'; el.style.color = '#bbb';
       } else {
-        el.textContent = `Ready  ·  ${chunks} chunks indexed`; el.style.color = '#16a34a';
+        el.innerHTML = `✅ Ready · ${chunks} chunks indexed`; el.style.color = '#16a34a';
       }
     } catch {
-      const el = document.getElementById('statusBox');
-      el.textContent = 'Server offline'; el.style.color = '#c0392b';
+      document.getElementById('statusBox').innerHTML = 'Server offline';
+      document.getElementById('statusBox').style.color = '#c0392b';
     }
   }
 
-  // ── Utilities ─────────────────────────────────────────────
-  function setHint(msg, cls) {
+  function setHint(msg, cls='') {
     const el = document.getElementById('uploadStatus');
     el.textContent = msg; el.className = 'hint ' + cls;
   }
