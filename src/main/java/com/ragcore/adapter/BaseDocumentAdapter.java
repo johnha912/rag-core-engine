@@ -25,6 +25,7 @@ public abstract class BaseDocumentAdapter implements DocumentAdapter {
     if (lower.endsWith(".docx")) return parseDocx(inputStream, fileName);
     if (lower.endsWith(".md"))   return parseMd(inputStream, fileName);
     if (lower.endsWith(".txt"))  return parseTxt(inputStream, fileName);
+    if (lower.endsWith(".fdx"))  return parseTxt(inputStream, fileName);
 
     throw new IllegalArgumentException("Unsupported file type: " + fileName);
   }
