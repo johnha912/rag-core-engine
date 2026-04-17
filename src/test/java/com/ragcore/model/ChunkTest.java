@@ -83,4 +83,39 @@ class ChunkTest {
     assertEquals(chunk1, chunk2);
     assertEquals(chunk1.hashCode(), chunk2.hashCode());
   }
+
+  // ── putMetadata tests ────────────────────────────────────────────────────
+
+  @Test
+  void putMetadata_writesIntoInternalMap() {
+    Chunk chunk = new Chunk("text", new HashMap<>(), "file.pdf");
+
+    chunk.putMetadata("domain", "film");
+
+    // Must be visible through getMetadata() — not lost in a defensive copy
+    assertEquals("film", chunk.getMetadata().get("domain"));
+  }
+
+  @Test
+  void putMetadata_getMetadataStillReturnsCopy() {
+    Chunk chunk = new Chunk("text", new HashMap<>(), "file.pdf");
+    chunk.putMetadata("domain", "film");
+
+    // Mutating the returned map must not affect the chunk's internal state
+    chunk.getMetadata().put("domain", "TAMPERED");
+
+    assertEquals("film", chunk.getMetadata().get("domain"));
+  }
+
+  @Test
+  void putMetadata_nullKeyThrows() {
+    Chunk chunk = new Chunk("text", new HashMap<>(), "file.pdf");
+    assertThrows(IllegalArgumentException.class, () -> chunk.putMetadata(null, "film"));
+  }
+
+  @Test
+  void putMetadata_nullValueThrows() {
+    Chunk chunk = new Chunk("text", new HashMap<>(), "file.pdf");
+    assertThrows(IllegalArgumentException.class, () -> chunk.putMetadata("domain", null));
+  }
 }

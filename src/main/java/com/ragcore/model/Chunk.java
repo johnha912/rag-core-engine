@@ -101,6 +101,27 @@ public class Chunk {
   }
 
   /**
+   * Writes a single key-value pair into this chunk's metadata.
+   *
+   * <p>{@link #getMetadata()} returns a defensive copy, so callers cannot mutate
+   * metadata through the getter. This method provides the single controlled write
+   * path, consistent with how {@link #setEmbedding} works for the embedding field.</p>
+   *
+   * @param key   the metadata key; must not be null or blank
+   * @param value the metadata value; must not be null
+   * @throws IllegalArgumentException if key is null or blank, or value is null
+   */
+  public void putMetadata(String key, String value) {
+    if (key == null || key.isBlank()) {
+      throw new IllegalArgumentException("Metadata key must not be null or blank.");
+    }
+    if (value == null) {
+      throw new IllegalArgumentException("Metadata value must not be null.");
+    }
+    this.metadata.put(key, value);
+  }
+
+  /**
    * Checks whether this chunk has an embedding vector set.
    *
    * @return true if the embedding is not null

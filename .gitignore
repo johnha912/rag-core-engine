@@ -28,4 +28,6 @@ hs_err_pid*
 replay_pid*
 
 out/
-rag-store.db
+rag-store.db.DS_Store
+**/.DS_Store
+*.db

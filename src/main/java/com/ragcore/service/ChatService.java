@@ -11,9 +11,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,15 @@ public class ChatService {
   private final OkHttpClient httpClient;
   private final Gson gson;
 
-  private final Map<String, List<JsonObject>> conversationHistories = new ConcurrentHashMap<>();
+  // Bounded LRU map: evicts the least-recently-used session once the cap is exceeded.
+  // Collections.synchronizedMap wraps it so concurrent requests don't corrupt the structure.
+  private final Map<String, List<JsonObject>> conversationHistories =
+      Collections.synchronizedMap(new LinkedHashMap<>(128, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, List<JsonObject>> eldest) {
+          return size() > 100;
+        }
+      });
 
   public ChatService(String apiKey) {
     this(apiKey, DEFAULT_MODEL);

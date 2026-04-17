@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Central coordinator of the RAG pipeline.
@@ -35,16 +37,6 @@ public class RagOrchestrator {
   private final AtomicBoolean indexing = new AtomicBoolean(false);
   private final AtomicInteger chunkCount = new AtomicInteger(0);
 
-  /**
-   * Tracks the domain of the most recently indexed document so that
-   * {@link #query} can select the appropriate system prompt without
-   * requiring callers to pass the domain on every request.
-   *
-   * <p>Volatile ensures visibility across threads without heavier synchronization;
-   * single-writer (only {@link #index} mutates it) so volatile is sufficient.</p>
-   */
-  private volatile String currentDomain = "general";
-
   @Autowired
   public RagOrchestrator(List<DocumentAdapter> adapters,
                          VectorStore vectorStore,
@@ -60,12 +52,13 @@ public class RagOrchestrator {
    * Indexes an uploaded file through the full pipeline: parse → embed → store.
    *
    * <p>Files are <em>additive</em>: each upload appends to the existing vector store
-   * so multiple documents can be queried together. To start fresh (e.g. switching to
-   * a completely unrelated corpus), call {@link #reset()} first or use DELETE /api/reset.</p>
+   * so multiple documents can be queried together. To start fresh, call {@link #reset()}
+   * first or use DELETE /api/reset.</p>
    *
-   * <p>{@code currentDomain} is updated to the most recently indexed domain and drives
-   * the LLM role instruction at query time. If you mix domains without resetting,
-   * the last uploaded domain's persona will apply to all queries.</p>
+   * <p>The resolved {@code domain} is written into every chunk's metadata under the key
+   * {@code "domain"}. This allows {@link #query} to infer the correct system prompt
+   * directly from the retrieved chunks — no global state required, and mixed-domain
+   * corpora are supported naturally.</p>
    *
    * @param file   the uploaded file from the HTTP request
    * @param domain the content domain (e.g. "film script", "rental law", "general")
@@ -79,14 +72,11 @@ public class RagOrchestrator {
 
       DocumentAdapter adapter;
 
-      if (domain == null || domain.isBlank() || domain.equals("general")) {
-        adapter = adapters.stream()
-            .filter(a -> a.supports(fileName))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException(
-                "No adapter found for file: " + fileName));
-      } else if (domain.equals("technical")) {
-        // Technical domain: route by file extension
+      boolean routeByExtension = (domain == null || domain.isBlank()
+          || domain.equals("general") || domain.equals("technical"));
+
+      if (routeByExtension) {
+        // For general and technical domains, pick the adapter by file extension.
         adapter = adapters.stream()
             .filter(a -> a.supports(fileName))
             .findFirst()
@@ -101,9 +91,17 @@ public class RagOrchestrator {
       }
 
       List<Chunk> chunks = adapter.parse(file.getInputStream(), fileName);
+
+      // Stamp every chunk with its domain so query() can infer the correct
+      // system prompt from the retrieved chunks rather than relying on global state.
+      // Note: putMetadata() writes directly to the chunk's internal map.
+      // chunk.getMetadata() returns a defensive copy — calling .put() on that
+      // copy would be a no-op on the actual chunk (the original bug).
+      final String effectiveDomain = (domain == null || domain.isBlank()) ? "general" : domain;
+      chunks.forEach(chunk -> chunk.putMetadata("domain", effectiveDomain));
+
       vectorStore.store(chunks);
       chunkCount.addAndGet(chunks.size());
-      currentDomain = (domain == null || domain.isBlank()) ? "general" : domain;
 
     } finally {
       indexing.set(false);
@@ -128,6 +126,12 @@ public class RagOrchestrator {
    * {@code conversationId} is provided, prior messages from that session are included
    * so the model can resolve follow-up references like "tell me more about that".</p>
    *
+   * <p>The domain-specific system prompt is inferred from the retrieved chunks'
+   * {@code "domain"} metadata using a majority vote — whichever domain appears most
+   * often in the top results wins. This means mixed-domain corpora work correctly:
+   * a question about a film script will retrieve film chunks and use the film persona,
+   * even if legal documents are also indexed.</p>
+   *
    * @param question       the user's question
    * @param conversationId optional session ID for multi-turn conversations; null for stateless
    * @return the AI-generated answer with source citations, or a fallback message
@@ -144,8 +148,17 @@ public class RagOrchestrator {
     List<Chunk> reranked = reranker.rerank(question, relevant);
     List<Chunk> top5 = reranked.subList(0, Math.min(5, reranked.size()));
 
+    // Infer domain from top chunks via majority vote — no global state needed.
+    String inferredDomain = top5.stream()
+        .map(c -> c.getMetadata().getOrDefault("domain", "general"))
+        .collect(Collectors.groupingBy(d -> d, Collectors.counting()))
+        .entrySet().stream()
+        .max(Map.Entry.comparingByValue())
+        .map(Map.Entry::getKey)
+        .orElse("general");
+
     try {
-      String roleInstruction = buildRoleInstruction(currentDomain);
+      String roleInstruction = buildRoleInstruction(inferredDomain);
       ChatService.ChatResponse response =
           chatService.ask(question, top5, conversationId, roleInstruction);
 
@@ -232,12 +245,10 @@ public class RagOrchestrator {
 
   /**
    * Clears all stored chunks and resets the chunk count.
-   * Use before uploading a new set of documents to avoid cross-domain confusion.
    */
   public void reset() {
     vectorStore.clear();
     chunkCount.set(0);
-    currentDomain = "general";
   }
 
   public List<Chunk> searchOnly(String question) {
@@ -250,8 +261,19 @@ public class RagOrchestrator {
       tokenCallback.accept("[NO_CONTENT]");
       return;
     }
+
+    // Infer domain from retrieved chunks for the stream path as well.
+    String inferredDomain = relevant.stream()
+        .map(c -> c.getMetadata().getOrDefault("domain", "general"))
+        .collect(Collectors.groupingBy(d -> d, Collectors.counting()))
+        .entrySet().stream()
+        .max(Map.Entry.comparingByValue())
+        .map(Map.Entry::getKey)
+        .orElse("general");
+
     try {
-      chatService.askStream(question, relevant, tokenCallback);
+      chatService.askStream(question, relevant, tokenCallback,
+          buildRoleInstruction(inferredDomain));
     } catch (Exception e) {
       tokenCallback.accept("[NO_CONTENT]");
     }

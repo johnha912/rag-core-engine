@@ -12,7 +12,6 @@ import java.util.List;
 
 public abstract class BaseDocumentAdapter implements DocumentAdapter {
 
-  // 子类只需要实现这一个方法
   protected abstract List<Chunk> buildChunks(String rawText, String fileName);
 
   @Override
