@@ -1,5 +1,6 @@
 package com.ragcore.controller;
 
+import com.google.gson.Gson;
 import com.ragcore.service.RagOrchestrator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +23,7 @@ public class RagController {
 
   private final RagOrchestrator orchestrator;
   private final Executor sseExecutor;
+  private final Gson gson = new Gson();
 
   public RagController(RagOrchestrator orchestrator,
                        @Qualifier("sseExecutor") Executor sseExecutor) {
@@ -112,7 +114,7 @@ public class RagController {
                   .data("\"No relevant content found. Please upload a document first.\""));
             } else {
               emitter.send(SseEmitter.event()
-                  .data("\"" + token.replace("\\", "\\\\").replace("\"", "\\\"") + "\""));
+                  .data(gson.toJson(token)));
             }
           } catch (Exception e) {
             emitter.completeWithError(e);

@@ -5,6 +5,7 @@ import com.ragcore.service.EmbeddingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -42,9 +43,15 @@ public class InMemoryVectorStore implements VectorStore {
     if (chunks == null) {
       throw new IllegalArgumentException("Chunks must not be null.");
     }
+    List<Chunk> needEmbed = new ArrayList<>();
     for (Chunk chunk : chunks) {
-      if (!chunk.hasEmbedding()) {
-        chunk.setEmbedding(embeddingService.embed(chunk.getContent()));
+      if (!chunk.hasEmbedding()) needEmbed.add(chunk);
+    }
+    if (!needEmbed.isEmpty()) {
+      List<String> texts = needEmbed.stream().map(Chunk::getContent).collect(Collectors.toList());
+      List<float[]> embeddings = embeddingService.embedBatch(texts);
+      for (int i = 0; i < needEmbed.size(); i++) {
+        needEmbed.get(i).setEmbedding(embeddings.get(i));
       }
     }
     store.addAll(chunks);

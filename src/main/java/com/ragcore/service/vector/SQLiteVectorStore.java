@@ -74,10 +74,18 @@ public class SQLiteVectorStore implements VectorStore {
     try (Connection conn = connect();
          PreparedStatement ps = conn.prepareStatement(sql)) {
       conn.setAutoCommit(false);
+      List<Chunk> needEmbed = new ArrayList<>();
       for (Chunk chunk : chunks) {
-        if (!chunk.hasEmbedding()) {
-          chunk.setEmbedding(embeddingService.embed(chunk.getContent()));
+        if (!chunk.hasEmbedding()) needEmbed.add(chunk);
+      }
+      if (!needEmbed.isEmpty()) {
+        List<String> texts = needEmbed.stream().map(Chunk::getContent).collect(Collectors.toList());
+        List<float[]> embeddings = embeddingService.embedBatch(texts);
+        for (int i = 0; i < needEmbed.size(); i++) {
+          needEmbed.get(i).setEmbedding(embeddings.get(i));
         }
+      }
+      for (Chunk chunk : chunks) {
         ps.setString(1, chunk.getContent());
         ps.setString(2, chunk.getSource());
         ps.setString(3, gson.toJson(chunk.getMetadata()));

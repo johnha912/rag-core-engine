@@ -35,6 +35,7 @@ Script Insight RAG lets users upload documents and ask natural-language question
 - Multi-turn conversation support with per-session history
 - RAG quality evaluation pipeline (retrieval hit rate + answer keyword rate)
 - Server-Sent Events (SSE) streaming endpoint
+- Batch embedding API with automatic sub-batching and cache-awareness for fast indexing
 - `DELETE /api/reset` to clear state between sessions
 
 ---
@@ -272,6 +273,8 @@ sqlite.db.path=data/rag-store.db
 - [x] Multi-turn conversation support
 - [x] RAG quality evaluation pipeline
 - [x] SSE streaming endpoint
+- [x] Batch embedding (cache-aware, sub-batched to 100 texts/request)
+- [x] Hardened SSE token streaming (Gson-encoded, full control-character safety)
 - [ ] Docker deployment (Railway / Render)
 - [ ] Vector index (FAISS) for large corpora
 - [ ] Conversation session TTL / eviction policy

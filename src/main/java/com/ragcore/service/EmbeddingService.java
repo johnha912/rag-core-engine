@@ -33,4 +33,21 @@ public interface EmbeddingService {
    * @throws RuntimeException         if the embedding API call fails
    */
   float[] embed(String text);
+
+  /**
+   * Embeds a list of texts in one batch, returning embeddings in the same order.
+   *
+   * <p>The default implementation falls back to calling {@link #embed} sequentially.
+   * Implementations should override this with a true batch API call for performance.</p>
+   *
+   * @param texts list of texts to embed; must not be null
+   * @return list of embedding vectors in the same order as the input
+   */
+  default java.util.List<float[]> embedBatch(java.util.List<String> texts) {
+    java.util.List<float[]> result = new java.util.ArrayList<>();
+    for (String text : texts) {
+      result.add(embed(text));
+    }
+    return result;
+  }
 }
