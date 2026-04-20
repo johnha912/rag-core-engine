@@ -1,4 +1,4 @@
-# Script Insight RAG
+# OmniRAG
 
 A modular Retrieval-Augmented Generation (RAG) system built with **Spring Boot / Java 21**. Upload any document, ask natural-language questions, and get grounded answers with source citations — powered by OpenAI embeddings and GPT-4o-mini.
 
@@ -22,7 +22,7 @@ A modular Retrieval-Augmented Generation (RAG) system built with **Spring Boot /
 
 ## Overview
 
-Script Insight RAG lets users upload documents and ask natural-language questions about them. The system chunks the document, embeds the chunks using OpenAI's `text-embedding-3-small` model, retrieves the most semantically relevant chunks, re-ranks them with an LLM call, and passes the top results to GPT-4o-mini to generate a grounded, cited answer.
+OmniRAG lets users upload documents and ask natural-language questions about them. The system chunks the document, embeds the chunks using OpenAI's `text-embedding-3-small` model, retrieves the most semantically relevant chunks, re-ranks them with an LLM call, and passes the top results to GPT-4o-mini to generate a grounded, cited answer.
 
 **Key features:**
 
@@ -86,8 +86,8 @@ Script Insight RAG lets users upload documents and ask natural-language question
 ### Clone & Build
 
 ```bash
-git clone https://github.com/your-org/script-insight-rag.git
-cd script-insight-rag
+git clone https://github.com/johnha912/rag-core-engine.git
+cd rag-core-engine
 mvn clean install
 ```
 
@@ -294,4 +294,4 @@ sqlite.db.path=data/rag-store.db
 
 ## License
 
-MIT License · © 2026 Script Insight RAG Team
+MIT License · © 2026 OmniRAG Team
