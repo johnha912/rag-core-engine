@@ -1,0 +1,12 @@
+com.ragcore
+com.ragcore.adapter
+com.ragcore.adapter.domain.film
+com.ragcore.adapter.domain.general
+com.ragcore.adapter.domain.legal
+com.ragcore.adapter.format
+com.ragcore.config
+com.ragcore.controller
+com.ragcore.model
+com.ragcore.service
+com.ragcore.service.rerank
+com.ragcore.service.vector

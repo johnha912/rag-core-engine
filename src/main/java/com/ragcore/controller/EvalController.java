@@ -33,7 +33,7 @@ public class EvalController {
    * Runs the evaluation pipeline against the default or specified test set.
    *
    * <p>Documents must be uploaded and indexed before running evaluation.
-   * The endpoint loads Q&A pairs from the classpath resource, runs each question
+   * The endpoint loads Q&amp;A pairs from the classpath resource, runs each question
    * through the RAG pipeline, and returns an aggregated report.</p>
    *
    * @param testSet optional classpath resource name (default: "eval-questions.json")

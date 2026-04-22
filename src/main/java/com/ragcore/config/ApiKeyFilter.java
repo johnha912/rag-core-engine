@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * HTTP filter that validates the {@code X-API-Key} request header.
  *
- * <h3>Behaviour</h3>
+ * <h2>Behaviour</h2>
  * <ul>
  *   <li><b>Security disabled</b> (default / dev mode): if {@code api.security.key} is blank,
  *       every request passes through without any check. This makes local development

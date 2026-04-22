@@ -1,0 +1,1 @@
+tagSearchIndex = [{"l":"Behaviour","h":"class com.ragcore.config.ApiKeyFilter","d":"Section","u":"com/ragcore/config/ApiKeyFilter.html#behaviour-heading"},{"l":"Usage","h":"class com.ragcore.config.ApiKeyFilter","d":"Section","u":"com/ragcore/config/ApiKeyFilter.html#usage-heading"}];updateSearchResults();
