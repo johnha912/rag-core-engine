@@ -2,7 +2,7 @@
 
 **OmniRAG** is a domain-aware Retrieval-Augmented Generation (RAG) engine built with Java 21 and Spring Boot. Upload documents in a wide variety of formats, ask questions in natural language, and receive grounded answers with source citations — streamed token-by-token or returned in a single response.
 
-> Built by **Rui Song**, **Nguyen Ha**, and **Siyuan Liang** · Northeastern University MSCS-Align · Spring 2026
+> Built by **Rui Song**, **Nguyen Ha**, and **Siyuan Liang** · Northeastern University MSCS · Spring 2026
 
 [![Java 21](https://img.shields.io/badge/Java-21-blue?logo=openjdk)](https://openjdk.org/)
 [![Spring Boot 3.2](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -13,23 +13,36 @@
 
 ## Table of Contents
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Supported Formats & Domains](#supported-formats--domains)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-  - [Running the Server](#running-the-server)
-- [API Reference](#api-reference)
-- [Pipeline Deep Dive](#pipeline-deep-dive)
-- [Evaluation](#evaluation)
-- [Project Structure](#project-structure)
-- [Running Tests](#running-tests)
-- [Development History](#development-history)
-- [Roadmap](#roadmap)
-- [Team](#team)
+- [OmniRAG](#omnirag)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+  - [Tech Stack](#tech-stack)
+  - [Supported Formats \& Domains](#supported-formats--domains)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Configuration](#configuration)
+    - [Running the Server](#running-the-server)
+  - [API Reference](#api-reference)
+    - [`POST /api/upload`](#post-apiupload)
+    - [`POST /api/query`](#post-apiquery)
+    - [`GET /api/stream`](#get-apistream)
+    - [`GET /api/status`](#get-apistatus)
+    - [`DELETE /api/reset`](#delete-apireset)
+    - [`DELETE /api/conversation/{id}`](#delete-apiconversationid)
+    - [`POST /api/eval/run`](#post-apievalrun)
+  - [Pipeline Deep Dive](#pipeline-deep-dive)
+    - [Index Flow](#index-flow)
+    - [Query Flow](#query-flow)
+    - [Key Design Decisions](#key-design-decisions)
+  - [Evaluation](#evaluation)
+  - [Project Structure](#project-structure)
+  - [Running Tests](#running-tests)
+  - [Development History](#development-history)
+  - [Roadmap](#roadmap)
+  - [Team](#team)
+  - [License](#license)
 
 ---
 
@@ -550,7 +563,7 @@ mvn test
 ## Team
 
 | Name | Role | Contributions |
-|---|---|---|
+|----|----|----|
 | **Rui Song** | Architecture + Film + Frontend | System skeleton, `RagOrchestrator`, `RagController`, end-to-end integration; Film adapter suite (`ScriptAdapter`, `StoryboardAdapter`, `SubtitleAdapter`); frontend with SSE streaming |
 | **Nguyen Ha** | Ingestion + Format Adapters + Evaluation | Core interfaces, `TextCleaner`, `BasePdfAdapter`, `ChatService`; `HtmlAdapter`, `MarkdownAdapter`, `CsvAdapter`, `JsonAdapter`; multi-turn conversation and evaluation pipeline |
 | **Siyuan Liang** | Storage + Legal + Retrieval | `EmbeddingServiceImpl`, `InMemoryVectorStore`; legal suite (`RentalLawAdapter`, `LegalSplitter`); `SQLiteVectorStore`, `LlmReranker` |
