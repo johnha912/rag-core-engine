@@ -38,7 +38,6 @@ public class RagOrchestrator {
   // Tracks chunks added in the current session only.
   // After a restart, this resets to 0 even if SQLite still has data.
   private final AtomicInteger chunkCount = new AtomicInteger(0);
-
   @Autowired
   public RagOrchestrator(List<DocumentAdapter> adapters,
                          VectorStore vectorStore,
